@@ -24,18 +24,6 @@ def load_progress():
     return progress_info
 
 
-def get_file_list():
-    origin_path = config.get_dir_path()
-    if not origin_path:
-        print('请先设置目录路径')
-        exit()
-    print('开始扫描目录：' + origin_path)
-
-    # 加载进度
-    progress_info = load_progress()
-    scan_directory(origin_path, progress_info)
-
-
 # 是否隐藏的文件夹
 def skip_dir(directory):
     return '.' in os.path.basename(directory) or os.path.basename(directory) in config.get_skip_dir_name()
@@ -47,7 +35,7 @@ def filter_need_handle(file_name):
     return ext.lower() in config.get_suffix_list()
 
 
-def hanle_file(file_path):
+def handle_file(file_path):
     print("开始处理文件：" + file_path)
     file_info = os.stat(file_path)
     file_name = os.path.basename(file_path)
@@ -82,7 +70,7 @@ def scan_directory(directory, progress_info):
                 if entry.is_file() and filter_need_handle(entry.name):
                     print('扫描到文件：' + entry.path)
                     print("已扫描文件个数: {}".format(progress_info['file_count']))
-                    hanle_file(entry.path)
+                    handle_file(entry.path)
                     progress_info['file_count'] += 1
                 elif entry.is_dir():
                     scan_queue.put(entry.path)
@@ -95,12 +83,21 @@ def scan_directory(directory, progress_info):
         save_process(progress_info, scan_queue)
 
 
-# 删除进度
-if (config.remove_process and os.path.exists(config.get_file_scan_process_path())):
-    os.remove(config.get_file_scan_process_path())
-    db_tools.drop_db()
+def get_file_list():
+    # 删除进度
+    if config.remove_process and os.path.exists(config.get_file_scan_process_path()):
+        os.remove(config.get_file_scan_process_path())
+        db_tools.drop_db()
+    # 初始化db
+    db_tools.init_db()
 
-# 初始化db
-db_tools.init_db()
-# 加载计时器
-get_file_list()
+    origin_path = config.get_dir_path()
+    if not origin_path:
+        print('请先设置目录路径')
+        exit()
+    print('开始扫描目录：' + origin_path)
+
+    # 加载进度
+    progress_info = load_progress()
+    scan_directory(origin_path, progress_info)
+
