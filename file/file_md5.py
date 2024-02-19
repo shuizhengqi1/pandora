@@ -30,7 +30,7 @@ def cal_all_md5():
                     db_tools.update_file_md5(_id, md5_value)
                     total_bar.update(1)
                     sys.stdout.write("\033[F\033[K")
-                    print(f"md5计算耗时 :{int(time_taken)}")
+                    print(f"md5计算耗时 :{int(time_taken)}秒")
                     sys.stdout.flush()
                 except Exception as e:
                     print(f"文件扫描异常: {e}")

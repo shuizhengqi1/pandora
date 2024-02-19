@@ -1,7 +1,6 @@
 from db.db_tools import drop_table
 from file import file_handle,file_md5
 
-
 def run_file_scan():
     drop_table()
     file_handle.get_file_list()

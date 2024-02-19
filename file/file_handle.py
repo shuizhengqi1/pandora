@@ -105,7 +105,7 @@ def scan_directory(directory):
 
 
 def init_scan_thread(directory):
-    scan_thread = threading.Thread(target=scan_directory, args=directory)
+    scan_thread = threading.Thread(target=scan_directory, args=(directory,))
     scan_thread.start()
     return scan_thread
 
