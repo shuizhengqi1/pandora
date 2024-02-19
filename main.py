@@ -1,6 +1,5 @@
 from db.db_tools import drop_table
-from file import file_handle
-from picture import pic_tools
+from file import file_handle,file_md5
 
 
 def run_file_scan():
@@ -9,8 +8,8 @@ def run_file_scan():
 
 
 def run_md5_cal():
-    pic_tools.cal_all_pic()
+    file_md5.cal_all_md5()
 
 
 if __name__ == '__main__':
-    run_file_scan()
+    run_md5_cal()
