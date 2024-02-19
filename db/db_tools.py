@@ -4,18 +4,19 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from db.file_info import FileInfo, Base
 
-engine = create_engine("sqlite:///./data/pandora.db", echo=True)
+engine = create_engine("sqlite:///./data/pandora.db")
 inspector = inspect(engine)
 
 Session = sessionmaker(bind=engine)
 
 
 @contextmanager
-def get_session():
+def get_session(auto_commit=True):
     session = Session()
     try:
         yield session
-        session.commit()
+        if auto_commit:
+            session.commit()
     except Exception as e:
         print(f"出现了异常 :{e}")
         raise e
@@ -28,17 +29,24 @@ def add_file_info(file_info: FileInfo):
         session.add(file_info)
 
 
-def query_pic_list():
-    with get_session() as session:
-        query = session.query(FileInfo).filter(FileInfo.file_type == 'pic').limit(20)
-        return query.all()
+def query_unprocessed_list(file_type):
+    with get_session(False) as session:
+        query = session.query(FileInfo).filter(FileInfo.file_type == file_type).filter(FileInfo.file_md5 == 'tmp').limit(20)
+        result_list = query.all()
+        return result_list
+
+
+def query_total_count(file_type):
+    with get_session(False) as session:
+        query = session.query(FileInfo).filter(FileInfo.file_type == file_type).filter(
+            FileInfo.file_md5 == 'tmp')
+        return query.count()
 
 
 def update_file_md5(_id, md5):
     with get_session() as session:
-        file_info: FileInfo = session.query(FileInfo).filter(FileInfo.id == _id).first()
+        file_info = session.get(FileInfo, _id)
         file_info.file_md5 = md5
-        session.commit()
 
 
 def init_db():

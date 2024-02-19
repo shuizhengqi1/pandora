@@ -9,7 +9,10 @@
         "Library",
         "meituan",
         "Homebrew",
-        "dev"
+        "dev",
+        "/usr/share/",
+        "wifi",
+        "sys"
     ],
     "type_map": {
         "video": [

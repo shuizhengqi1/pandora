@@ -25,6 +25,7 @@ with open(config_path, 'r') as f:
                 suffix_type_map[value] = key
     print('配置文件加载完毕')
     print(suffix_type_map)
+    print(f"不扫描文件的名称为:{skip_dir_name}")
 
 
 def get_skip_dir_name():
