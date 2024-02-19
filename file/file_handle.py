@@ -3,8 +3,9 @@ import json
 import os
 import queue
 import data.config as config
-from domain.domain_item import FileDomainItem
 import db.db_tools as db_tools
+from db.file_info import FileInfo
+import  datetime
 
 
 # 保存进度
@@ -42,12 +43,19 @@ def handle_file(file_path):
     file_suffix = os.path.splitext(file_name)[1]
     file_size = round(file_info.st_size / (1024 * 1024), 1)
     # file_md5 = get_file_md5(file_path)
-    create_time = int(os.path.getctime(file_path))
-    modify_time = int(file_info.st_mtime)
+    create_time = datetime.datetime.fromtimestamp(os.path.getctime(file_path)).replace(microsecond=0)
+    modify_time = datetime.datetime.fromtimestamp(file_info.st_mtime).replace(microsecond=0)
 
-    domainItem = FileDomainItem(file_name, file_path, file_size, 'tmp', file_suffix, create_time, modify_time)
-    db_tools.add_file_info(domainItem)
-
+    file_domain = FileInfo(
+        file_path=file_path,
+        file_name=file_name,
+        file_suffix=file_suffix,
+        file_size=file_size,
+        file_type=config.get_suffix_type(file_suffix),
+        create_time=create_time,
+        modify_time=modify_time
+    )
+    db_tools.add_file_info(file_domain)
 
 # 扫描文件夹内容
 def scan_directory(directory, progress_info):
@@ -65,7 +73,7 @@ def scan_directory(directory, progress_info):
             return
         try:
             for entry in os.scandir(directory):
-                if (entry.is_symlink()):
+                if entry.is_symlink():
                     continue
                 if entry.is_file() and filter_need_handle(entry.name):
                     print('扫描到文件：' + entry.path)
@@ -87,7 +95,6 @@ def get_file_list():
     # 删除进度
     if config.remove_process and os.path.exists(config.get_file_scan_process_path()):
         os.remove(config.get_file_scan_process_path())
-        db_tools.drop_db()
     # 初始化db
     db_tools.init_db()
 
@@ -100,4 +107,3 @@ def get_file_list():
     # 加载进度
     progress_info = load_progress()
     scan_directory(origin_path, progress_info)
-

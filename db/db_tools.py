@@ -1,56 +1,65 @@
-import sqlite3
-from domain.domain_item import FileDomainItem
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 
-create_file_table_sql = '''
-CREATE TABLE IF NOT EXISTS file_info (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    file_path VARCHAR(1024),
-    file_md5 CHAR(32) NOT NULL,
-    file_name TEXT,
-    file_type TEXT,
-    file_size INTEGER,
-    file_suffix TEXT,
-    create_time TIMESTAMP,
-    modify_time TIMESTAMP
-)
-'''
-data_insert_sql = '''INSERT INTO file_info (file_path,file_md5,file_name,file_size,file_type,file_suffix,create_time,
-modify_time) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}')'''
-drop_sql = "DROP TABLE IF EXISTS file_info "
-pic_query_sql = '''SELECT id,file_path FROM file_info WHERE file_type = 'pic' and file_md5 = 'tmp' LIMIT 20'''
-conn = sqlite3.connect('./data/pandora.db')
-cur = conn.cursor()
+from sqlalchemy import create_engine, MetaData, Table, inspect
+from db.file_info import FileInfo, Base
+
+engine = create_engine("sqlite:///./data/pandora.db", echo=True)
+inspector = inspect(engine)
+
+Session = sessionmaker(bind=engine)
 
 
-def add_file_info(file_domain_item: FileDomainItem):
-    insert_sql = data_insert_sql.format(file_domain_item.file_path,
-                                        file_domain_item.file_md5,
-                                        file_domain_item.file_name,
-                                        file_domain_item.file_size,
-                                        file_domain_item.file_type,
-                                        file_domain_item.file_suffix,
-                                        file_domain_item.file_create_time,
-                                        file_domain_item.file_modify_time)
-    cur.execute(insert_sql)
-    conn.commit()
+@contextmanager
+def get_session():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        print(f"出现了异常 :{e}")
+        raise e
+    finally:
+        session.close()
+
+
+def add_file_info(file_info: FileInfo):
+    with get_session() as session:
+        session.add(file_info)
 
 
 def query_pic_list():
-    cur.execute(pic_query_sql)
-    return cur.fetchall()
+    with get_session() as session:
+        query = session.query(FileInfo).filter(FileInfo.file_type == 'pic').limit(20)
+        return query.all()
 
 
-def update_file_md5(id, md5):
-    update_sql = '''UPDATE file_info SET file_md5 = '{}' WHERE id = '{}' '''.format(md5, id)
-    cur.execute(update_sql)
-    conn.commit()
-
-
-def drop_db():
-    cur.execute(drop_sql)
-    conn.commit()
+def update_file_md5(_id, md5):
+    with get_session() as session:
+        file_info: FileInfo = session.query(FileInfo).filter(FileInfo.id == _id).first()
+        file_info.file_md5 = md5
+        session.commit()
 
 
 def init_db():
-    cur.execute(create_file_table_sql)
-    conn.commit()
+    file_info_exist, video_info_exist, pic_info_exist = check_table_exist()
+    if not file_info_exist or video_info_exist or pic_info_exist:
+        Base.metadata.create_all(engine)
+
+
+def check_table_exist():
+    return inspector.has_table('file_info'), inspector.has_table('video_info'), inspector.has_table('pic_info')
+
+
+def drop_table():
+    metaData = MetaData()
+    file_info = Table('file_info', metaData)
+    video_info = Table('video_info', metaData)
+    pic_info = Table('pic_info', metaData)
+    file_info_exist, video_info_exist, pic_info_exist = check_table_exist()
+    if file_info_exist:
+        file_info.drop(engine)
+    if video_info_exist:
+        video_info.drop(engine)
+    if pic_info_exist:
+        pic_info.drop(engine)
