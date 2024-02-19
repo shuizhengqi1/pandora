@@ -8,7 +8,8 @@ from tqdm import tqdm
 
 def cal_all_md5():
     for _type in ['document', 'pic', 'video']:
-        print("\n")
+        sys.stdout.write("\033[F\033[K")
+        sys.stdout.write("\033[F\033[K")
         sys.stdout.write("\033[F\033[K")
         print(f"当前开始处理:{_type}")
         total_count = db_tools.query_total_count(_type)
@@ -23,14 +24,14 @@ def cal_all_md5():
                 try:
                     _id = row.id
                     file_path = row.file_path
+                    sys.stdout.write("\033[F\033[K")
                     total_bar.write(f"当前处理:{file_path}")
                     md5_value, time_taken = calculate_md5(file_path)
                     db_tools.update_file_md5(_id, md5_value)
                     total_bar.update(1)
-                    print("\n")
                     sys.stdout.write("\033[F\033[K")
-                    sys.stdout.flush()
                     print(f"md5计算耗时 :{int(time_taken)}")
+                    sys.stdout.flush()
                 except Exception as e:
                     print(f"文件扫描异常: {e}")
                     continue
