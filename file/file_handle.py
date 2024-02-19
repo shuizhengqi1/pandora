@@ -131,6 +131,7 @@ def get_file_list():
     print('开始扫描目录：' + origin_path)
     global _scanStartTime
     _scanStartTime = time.time()
+
     # 加载进度
     init_print_thread()
     scan_thread = init_scan_thread(origin_path)
@@ -142,6 +143,5 @@ def get_file_list():
     # 清除当前行并将光标移动到第一行开头
     sys.stdout.write("\033[F\033[K")
     # 清除下一行并将光标移动到第二行开头
-    sys.stdout.write("\033[F\033[K")
     print(
         f"处理完成，共计耗时{int(time.time() - _scanStartTime)}秒 处理了{process_data.get_progress()['file_count']}个文件，扫描了{_scanDirCount} 个文件夹 \n")

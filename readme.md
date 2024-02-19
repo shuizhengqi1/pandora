@@ -32,7 +32,8 @@ sqlite
 config.json:配置文件
 db_tools.py:进行表数据的读写
 domain/domain_item.py:对象模型定义
-file_handle.py: 文件扫描及读取
+file/file_handle.py: 文件扫描及读取
+
 video/video_handle.py: 视频处理，包括音频提取，视频帧抽取
 video/audio_detect.py: 视频音频文件处理，包括人声提取，特征提取
 video/video_face_detect.py: 视频人脸识别
