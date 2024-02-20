@@ -1,7 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, INTEGER, String, DATETIME, SMALLINT
+from sqlalchemy import Column, INTEGER, String, DATETIME, SMALLINT, BLOB
 
 Base = declarative_base()
+
 
 class FileInfo(Base):
     __tablename__ = 'file_info'
@@ -33,3 +34,16 @@ class PicInfo(Base):
     pic_id = Column(INTEGER)
     face_count = Column(INTEGER, comment="人脸数量")
 
+
+class FaceInfo(Base):
+    __tablename__ = 'face_info'
+    id = Column(INTEGER, primary_key=True)
+    face_feature = Column(BLOB, comment="人脸向量数据")
+    face_path = Column(String, comment="人脸存储路径")
+
+
+class PicFaceRelation(Base):
+    __tablename__ = 'pic_face_relation'
+    id = Column(INTEGER, primary_key=True)
+    face_id = Column(INTEGER, primary_key=True)
+    pic_id = Column(INTEGER, primary_key=True)
