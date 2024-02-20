@@ -12,3 +12,4 @@ matplotlib
 mtcnn
 torch~=2.2.0
 pillow~=10.2.0
+faiss-cpu
