@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import os
 import queue
 import sys
@@ -7,7 +6,7 @@ import time
 
 import data.config as config
 import db.db_tools as db_tools
-from db.file_info import FileInfo
+from domain import file_info
 import datetime
 from data import process_data
 import threading
@@ -46,13 +45,13 @@ def filter_need_handle(file_name):
 # 具体处理文件的代码
 def handle_file(file_path):
     # print("开始处理文件：" + file_path)
-    file_info = os.stat(file_path)
+    file_info_stat = os.stat(file_path)
     file_name = os.path.basename(file_path)
     file_suffix = os.path.splitext(file_name)[1]
-    file_size = round(file_info.st_size / (1024 * 1024), 1)
+    file_size = round(file_info_stat.st_size / (1024 * 1024), 1)
     create_time = datetime.datetime.fromtimestamp(os.path.getctime(file_path)).replace(microsecond=0)
-    modify_time = datetime.datetime.fromtimestamp(file_info.st_mtime).replace(microsecond=0)
-    file_domain = FileInfo(
+    modify_time = datetime.datetime.fromtimestamp(file_info_stat.st_mtime).replace(microsecond=0)
+    file_domain = file_info.FileInfo(
         file_path=file_path,
         file_name=file_name,
         file_suffix=file_suffix,
@@ -61,7 +60,7 @@ def handle_file(file_path):
         create_time=create_time,
         modify_time=modify_time
     )
-    db_tools.add_file_info(file_domain)
+    file_info.add_file_info(file_domain)
 
 
 # 扫描文件夹内容

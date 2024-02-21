@@ -11,5 +11,4 @@ matplotlib
 mtcnn
 torch
 pillow
-faiss-cpu
 facenet_pytorch
