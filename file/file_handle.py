@@ -119,8 +119,6 @@ def get_file_list():
     # 删除保存的进度
     if config.remove_process and os.path.exists(config.get_file_scan_process_path()):
         os.remove(config.get_file_scan_process_path())
-    # 初始化db
-    db_tools.init_db()
     process_data.load_progress()
     # 初始化路径
     origin_path = config.get_dir_path()

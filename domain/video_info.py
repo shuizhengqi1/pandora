@@ -1,4 +1,4 @@
-from db.db_base import DbBase, Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB
+from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB
 
 table_name = 'video_info'
 

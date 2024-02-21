@@ -10,4 +10,3 @@ def load_index():
     index = faiss.IndexFlatL2(128)
     faiss.write_index(index, face_path)
     return index
-
