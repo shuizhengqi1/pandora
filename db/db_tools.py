@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy import create_engine, MetaData, Table, inspect
-from db.db_base import Base, engine, inspector
+from db.db_base import Base, engine, inspector, refresh
 from domain import domain_list
 from tool import log_tool
 
@@ -12,7 +12,9 @@ def init_db():
         if not inspector.has_table(table.__tablename__):
             print(f"初始化db")
             Base.metadata.create_all(engine, checkfirst=True)
+            refresh()
             break
+    refresh()
 
 
 @log_tool.log_process("drop表")

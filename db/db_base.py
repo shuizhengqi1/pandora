@@ -1,8 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
+from tool import log_tool
 
-from sqlalchemy import create_engine, MetaData, Table, inspect,Column, INTEGER, String, DATETIME, SMALLINT, BLOB
+# noinspection PyUnresolvedReferences
+from sqlalchemy import create_engine, MetaData, Table, inspect, Column, INTEGER, String, DATETIME, SMALLINT, BLOB
 
 # Base信息
 Base = declarative_base()
@@ -24,4 +26,11 @@ def get_session(auto_commit=True):
         print(f"出现了异常 :{e}")
         raise e
     finally:
+        session.expire_all()
         session.close()
+
+
+@log_tool.log_process("session过期")
+def refresh():
+    session = Session()
+    session.expire_all()

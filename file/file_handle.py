@@ -5,7 +5,6 @@ import sys
 import time
 
 import data.config as config
-import db.db_tools as db_tools
 from domain import file_info
 import datetime
 from data import process_data
