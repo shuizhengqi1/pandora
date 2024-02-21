@@ -1,5 +1,4 @@
 from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, get_session
-from db.db_tools import *
 
 table_name = 'file_info'
 

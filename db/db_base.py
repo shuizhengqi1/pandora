@@ -10,7 +10,6 @@ from sqlalchemy import create_engine, MetaData, Table, inspect, Column, INTEGER,
 Base = declarative_base()
 
 engine = create_engine("sqlite:///./data/pandora.db")
-inspector = inspect(engine)
 
 Session = sessionmaker(bind=engine)
 
