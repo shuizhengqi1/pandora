@@ -20,6 +20,9 @@ def process_all_pic():
     print(f"当前图片总数为{total_count}")
     unprocessed_count = pic_info_db.get_pic_un_detect_total_count()
     print(f"当前待检测图片总数为{unprocessed_count}")
+    if os.path.exists(save_path):
+        print(f"当前目录:{save_path}已存在，执行删除")
+        os.removedirs(save_path)
     total_bar = tqdm(unprocessed_count)
     flag = True
     while flag:
@@ -47,20 +50,21 @@ def check_before_detect(file_info: file_info_db.FileInfo):
 
 # 检测人脸数据，并保存
 def detect_face_and_save(pic_info_domain: pic_info_db.PicInfo, file_info_domain: file_info_db.FileInfo):
-    image = Image.open(file_info_domain.file_path)
+    # 读取图片
+    image = Image.open(file_info_domain.file_path).convert("RGB")
     # 返回的boxes是包括人脸的框的坐标，points表示的是人脸的五个关键点的坐标,probs是人脸的执行度
     boxes, probs, points = mtcnn.detect(image, landmarks=True)
     face_base_path = os.path.join(save_path, file_info_domain.file_md5)
     # 判断文件夹是否存在，如不存在则创建
-    if not os.path.exists(face_base_path):
-        os.makedirs(face_base_path)
     if boxes is not None:
+        if not os.path.exists(face_base_path):
+            os.makedirs(face_base_path)
         print(f"检测到:{len(boxes)}个人脸")
         for i, (box, point) in enumerate(zip(boxes, points)):
             print(f"处理第{i}个人脸数据")
             # 对获取到的每个人脸进行裁剪
             print(f"开始裁剪")
-            face = image.crop(box).convert("RGB")
+            face = image.crop(box)
             face_save_path = os.path.join(face_base_path, f'{i}.png')
             face.save(face_save_path)
             print(f"开始检测人脸特征")
