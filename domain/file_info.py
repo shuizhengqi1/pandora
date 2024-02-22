@@ -1,3 +1,5 @@
+from sqlalchemy import func, select
+
 from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, get_session
 
 table_name = 'file_info'
@@ -41,3 +43,18 @@ def update_file_md5(_id, md5):
     with get_session() as session:
         file_info = session.get(FileInfo, _id)
         file_info.file_md5 = md5
+
+
+def find_duplicate_file_list():
+    with get_session() as session:
+        # 查询重复的md5数据
+        duplicate_md5_query = select(FileInfo.file_md5, func.count(FileInfo.file_md5)).group_by(
+            FileInfo.file_md5).having(func.count(FileInfo.file_md5) > 1).alias()
+        total_query = session.query(FileInfo, duplicate_md5_query.c.count).join(duplicate_md5_query,
+                                                                                FileInfo.file_md5 == duplicate_md5_query.c.file_md5).order_by(
+            FileInfo.file_md5)
+        duplicate_file_list = total_query.all()
+        if duplicate_file_list:
+            for file_info, count in duplicate_file_list:
+                print(
+                    f"文件名:{file_info.file_name} 文件路径:{file_info.file_path} 文件md5:{file_info.file_md5} 重复个数:{count}")

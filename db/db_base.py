@@ -25,11 +25,4 @@ def get_session(auto_commit=True):
         print(f"出现了异常 :{e}")
         raise e
     finally:
-        session.expire_all()
         session.close()
-
-
-@log_tool.log_process("session过期")
-def refresh():
-    session = Session()
-    session.expire_all()
