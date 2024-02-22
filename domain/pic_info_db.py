@@ -1,6 +1,6 @@
 from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, get_session
 from sqlalchemy import select
-from domain import file_info
+from domain import file_info_db
 
 table_name = 'pic_info'
 
@@ -35,10 +35,10 @@ def get_pic_un_detect_total_count():
 
 def get_to_process_file_list():
     with get_session(False) as session:
-        query = session.query(PicInfo, file_info.FileInfo).join(file_info.FileInfo,
-                                                                PicInfo.file_id == file_info.FileInfo.id).filter(
+        query = session.query(PicInfo, file_info_db.FileInfo).join(file_info_db.FileInfo,
+                                                                PicInfo.file_id == file_info_db.FileInfo.id).filter(
             PicInfo.status == "init").limit(20)
-        query.add_entity(PicInfo).add_entity(file_info.FileInfo)
+        query.add_entity(PicInfo).add_entity(file_info_db.FileInfo)
         return query.all()
 
 

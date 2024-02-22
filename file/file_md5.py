@@ -3,7 +3,7 @@ import hashlib
 import sys
 import time
 from tqdm import tqdm
-from domain import file_info
+from domain import file_info_db
 
 
 def cal_all_md5():
@@ -12,22 +12,21 @@ def cal_all_md5():
         sys.stdout.write("\033[F\033[K")
         sys.stdout.write("\033[F\033[K")
         print(f"当前开始处理:{_type}")
-        total_count = file_info.query_total_count(_type)
+        total_count = file_info_db.query_total_count(_type)
         print(f"总数是{total_count}")
         total_bar = tqdm(total_count)
         flag = True
         while flag:
-            rowList = file_info.query_unprocessed_file_list(_type)
+            rowList = file_info_db.query_unprocessed_file_list(_type)
             if not rowList:
                 flag = False
             for row in rowList:
                 try:
-                    _id = row.id
+                    file_id = row.id
                     file_path = row.file_path
                     sys.stdout.write("\033[F\033[K")
                     total_bar.write(f"当前处理:{file_path}")
-                    md5_value, time_taken = calculate_md5(file_path)
-                    file_info.update_file_md5(_id, md5_value)
+                    time_taken = calculate_md5(file_id, file_path)
                     total_bar.update(1)
                     sys.stdout.write("\033[F\033[K")
                     print(f"md5计算耗时 :{int(time_taken)}秒")
@@ -38,7 +37,7 @@ def cal_all_md5():
         total_bar.close()
 
 
-def calculate_md5(file_path):
+def calculate_md5(file_id, file_path):
     start_time = time.time()
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -46,4 +45,5 @@ def calculate_md5(file_path):
             hash_md5.update(chunk)
     end_time = time.time()  # 结束计时
     elapsed_time = end_time - start_time  # 计算耗时
-    return hash_md5.hexdigest(), elapsed_time
+    file_info_db.update_file_md5(file_id, hash_md5.hexdigest())
+    return elapsed_time
