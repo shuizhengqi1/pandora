@@ -5,7 +5,7 @@ import sys
 import time
 
 import data.config as config
-from domain import file_info
+from domain import file_info, pic_info, video_info
 import datetime
 from data import process_data
 import threading
@@ -50,7 +50,7 @@ def handle_file(file_path):
     file_size = round(file_info_stat.st_size / (1024 * 1024), 1)
     create_time = datetime.datetime.fromtimestamp(os.path.getctime(file_path)).replace(microsecond=0)
     modify_time = datetime.datetime.fromtimestamp(file_info_stat.st_mtime).replace(microsecond=0)
-    file_domain = file_info.FileInfo(
+    file_info_domain = file_info.FileInfo(
         file_path=file_path,
         file_name=file_name,
         file_suffix=file_suffix,
@@ -59,7 +59,17 @@ def handle_file(file_path):
         create_time=create_time,
         modify_time=modify_time
     )
-    file_info.add_file_info(file_domain)
+    file_id = file_info.add_file_info(file_info_domain)
+    # 记入picInfo数据
+    if config.get_suffix_type(file_suffix) == 'pic':
+        pic_info.add_pic_info(pic_info.PicInfo(
+            file_id=file_id
+        ))
+    # 记入videoInfo数据
+    if config.get_suffix_type(file_suffix) == 'video':
+        video_info.add_video_info(video_info.VideoInfo(
+            file_id=file_id
+        ))
 
 
 # 扫描文件夹内容

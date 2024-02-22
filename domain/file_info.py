@@ -22,6 +22,8 @@ class FileInfo(Base):
 def add_file_info(file_info: FileInfo):
     with get_session() as session:
         session.add(file_info)
+        session.flush()
+        return file_info.id
 
 
 def query_unprocessed_file_list(file_type):
@@ -46,13 +48,14 @@ def update_file_md5(_id, md5):
 
 
 def find_duplicate_file_list():
-    with get_session() as session:
+    with (get_session() as session):
         # 查询重复的md5数据
         duplicate_md5_query = select(FileInfo.file_md5, func.count(FileInfo.file_md5)).group_by(
             FileInfo.file_md5).having(func.count(FileInfo.file_md5) > 1).alias()
         total_query = session.query(FileInfo, duplicate_md5_query.c.count).join(duplicate_md5_query,
-                                                                                FileInfo.file_md5 == duplicate_md5_query.c.file_md5).order_by(
-            FileInfo.file_md5)
+                                                                                FileInfo.file_md5 ==
+                                                                                duplicate_md5_query.c.file_md5
+                                                                                ).order_by(FileInfo.file_md5)
         duplicate_file_list = total_query.all()
         if duplicate_file_list:
             for file_info, count in duplicate_file_list:

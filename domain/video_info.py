@@ -1,4 +1,4 @@
-from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB
+from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, get_session
 
 table_name = 'video_info'
 
@@ -11,3 +11,10 @@ class VideoInfo(Base):
     face_count = Column(INTEGER, comment="人脸数量")
     face_detect_path = Column(String, comment="人脸检测路径")
     audio_detect_path = Column(String, comment="音频检测路径")
+
+
+def add_video_info(video_info: VideoInfo):
+    with get_session() as session:
+        session.add(video_info)
+        session.flush()
+        return video_info.id
