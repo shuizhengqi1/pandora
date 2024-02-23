@@ -12,3 +12,5 @@ mtcnn
 torch
 pillow
 facenet_pytorch
+tensorflow
+keras-facenet
