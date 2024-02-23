@@ -1,4 +1,7 @@
 import os.path
+
+os.environ["KERAS_BACKEND"] = "torch"
+
 from keras_facenet import FaceNet
 import cv2
 
@@ -36,4 +39,3 @@ class Keras(AbcFaceHandle):
         face_image = cv2.imread(face_path)
         face_image = cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB)
         face_embeddings = self.facenet.embeddings(face_image)
-
