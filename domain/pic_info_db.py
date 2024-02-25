@@ -3,14 +3,16 @@ from sqlalchemy import select
 from domain import file_info_db
 from enum import Enum
 
+from tool.log_tool import log_duration
+
 table_name = 'pic_info'
 
 
 class PicHandleStatus(Enum):
-    INIT = "init"
-    DONE = "done"
-    WAIT_CON = "wait_con"
-    ERROR = "error"
+    INIT = 0
+    DONE = 1
+    WAIT_CON = 2
+    ERROR = 3
 
 
 class PicInfo(Base):
@@ -19,7 +21,7 @@ class PicInfo(Base):
     file_id = Column(INTEGER)
     face_count = Column(INTEGER, comment="人脸数量")
     face_icon_path = Column(String, comment="人脸小图存储的地址")
-    status = Column(String, comment="人脸小图存储的地址", default="init")
+    status = Column(INTEGER, comment="人脸小图存储的地址", default="0")
 
 
 def delete_all():
@@ -51,17 +53,17 @@ def get_pic_total_count():
         return query.count()
 
 
-def get_pic_un_detect_total_count():
+def get_pic_need_detect_count():
     with get_session(False) as session:
         query = session.query(PicInfo).filter(PicInfo.status == PicHandleStatus.INIT.value)
         return query.count()
 
 
-def get_to_process_file_list():
+def get_to_process_pic_list(page_size, page_number):
     with get_session(False) as session:
         query = session.query(PicInfo, file_info_db.FileInfo).join(file_info_db.FileInfo,
                                                                    PicInfo.file_id == file_info_db.FileInfo.id).filter(
-            PicInfo.status == "init").limit(20)
+            PicInfo.status == PicHandleStatus.INIT.value).offset((page_number - 1) * page_size).limit(page_size)
         query.add_entity(PicInfo).add_entity(file_info_db.FileInfo)
         return query.all()
 

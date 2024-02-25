@@ -1,6 +1,6 @@
 from db.db_tools import drop_table, init_db
 from file import file_handle, file_md5
-from picture import face_detect
+from picture import face_detect,face_recon
 from tool import log_tool
 from domain import file_info_db
 
@@ -22,3 +22,4 @@ if __name__ == '__main__':
     # run_file_scan()
     # run_md5_cal()
     face_detect.process_all_pic()
+    # face_recon.start_recon()
