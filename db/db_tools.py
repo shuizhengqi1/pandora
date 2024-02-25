@@ -24,3 +24,4 @@ def drop_table():
             print(f"当前表:{table.__tablename__}已经存在了，执行drop")
             Base.metadata.tables[table.__tablename__].drop(engine)
             print(f"{table.__tablename__}表drop完成")
+

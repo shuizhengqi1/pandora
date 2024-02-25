@@ -11,6 +11,12 @@ class FaceInfo(Base):
     pic_id = Column(INTEGER)
 
 
+def delete_all():
+    with get_session() as session:
+        session.delete()
+        print(f"清理所有数据")
+
+
 def add_face_info(face_info: FaceInfo):
     with get_session() as session:
         session.add(face_info)

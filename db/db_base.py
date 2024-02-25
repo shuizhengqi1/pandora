@@ -14,6 +14,8 @@ engine = create_engine("sqlite:///./data/pandora.db")
 
 Session = sessionmaker(bind=engine)
 
+meta_data = MetaData()
+
 
 @contextmanager
 def get_session(auto_commit=True):

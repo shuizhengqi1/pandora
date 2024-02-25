@@ -19,6 +19,12 @@ class FileInfo(Base):
     modify_time = Column(DATETIME, comment="更新时间")
 
 
+def delete_all():
+    with get_session() as session:
+        session.delete()
+        print(f"清理所有数据")
+
+
 def add_file_info(file_info: FileInfo):
     with get_session() as session:
         session.add(file_info)
