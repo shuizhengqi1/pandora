@@ -67,7 +67,7 @@ def get_to_process_file_list():
 
 
 def update_face_detect_result(pic_info: PicInfo):
-    with get_session() as session:
+    with get_session(True) as session:
         update_pic_info = session.get(PicInfo, pic_info.id)
         update_pic_info.face_count = pic_info.face_count
         update_pic_info.face_icon_path = pic_info.face_icon_path

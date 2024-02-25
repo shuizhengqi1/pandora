@@ -13,7 +13,7 @@ class FaceInfo(Base):
 
 def delete_all():
     with get_session() as session:
-        session.delete()
+        session.query(FaceInfo).delete()
         print(f"清理所有数据")
 
 

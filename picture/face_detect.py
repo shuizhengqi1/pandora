@@ -8,14 +8,16 @@ from tqdm import tqdm
 from domain import pic_info_db, face_info_db, file_info_db
 from file import file_md5
 import concurrent.futures
+from queue import Queue
 
 device = torch.device('cuda')
 save_path = 'face_icon'
 mtcnn = MTCNN(device=device)
-# resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
-
-executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
-
+resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
+# 检测用的线程池
+detect_executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+# 数据保存用的线程池
+save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 # cuda信息检测
 print(f"torch支持的版本cuda版本是{torch.version.cuda}")
 if torch.cuda.is_available():
@@ -25,7 +27,8 @@ else:
 
 
 def process_all_pic():
-    pic_info_db.init_all()
+    # pic_info_db.init_all()
+    # face_info_db.delete_all()
     total_count = pic_info_db.get_pic_total_count()
     print(f"当前图片总数为{total_count}")
     unprocessed_count = pic_info_db.get_pic_un_detect_total_count()
@@ -34,23 +37,23 @@ def process_all_pic():
         print(f"当前目录:{save_path}已存在，执行删除")
         shutil.rmtree(save_path)
     # 记录总共进度
-    with tqdm(total=unprocessed_count, bar_format="处理百分比：{percentage:3.0f}%|{bar}|已处理{n_fmt}/总数{total_fmt}",
-              smoothing=0.5) as total_bar:
+    with tqdm(total=unprocessed_count,
+              bar_format="处理百分比：{percentage:3.0f}%|{bar}|已处理{n_fmt}/总数{total_fmt}") as total_bar:
         flag = True
-        while flag:
+        while flag :
             pic_list = pic_info_db.get_to_process_file_list()
             if not pic_list:
                 flag = False
             for pic_info_domain, file_info_domain in pic_list:
-                total_bar.set_description(f"当前处理地址{file_info_domain.file_path}")
-                total_bar.set_postfix_str("已进行{elapsed:.1f}秒|平均单个{average:.1f}秒|剩余时间{remaining:.1f}秒")
-                # 前置检查
-                file_info_domain = check_before_detect(file_info_domain)
-                # 处理
-                detect_face_and_save(pic_info_domain, file_info_domain)
+                detect_executor.submit(handle_file, pic_info_domain, file_info_domain, total_bar)
 
-            total_bar.update(1)
-            total_bar.refresh()
+
+def handle_file(pic_info_domain: pic_info_db.PicInfo, file_info_domain: file_info_db.FileInfo, bar: tqdm):
+    # 前置检查
+    file_info_domain = check_before_detect(file_info_domain)
+    # 处理
+    detect_face_and_save(pic_info_domain, file_info_domain)
+    bar.update(1)
 
 
 # 人脸检测之前先判断md5是否存在，如果不存在则处理，然后重新查询
@@ -72,7 +75,7 @@ def detect_face_and_save(pic_info_domain: pic_info_db.PicInfo, file_info_domain:
             pic_info_domain.face_count = len(face_list)
             pic_info_domain.face_icon_path = os.path.abspath(face_base_path)
             pic_info_domain.status = pic_info_db.PicHandleStatus.WAIT_CON.value
-            # executor.submit(add_face_info, pic_info_domain.id, face_list)
+            add_face_info(pic_info_domain.id, face_list)
         else:
             pic_info_domain.status = pic_info_db.PicHandleStatus.DONE.value
     except Exception as e:
@@ -85,7 +88,7 @@ def add_face_info(pic_id, face_list):
     for face_path in face_list:
         face_info_db.add_face_info(face_info=face_info_db.FaceInfo(
             pic_id=pic_id,
-            face_path=face_path
+            face_path=os.path.abspath(face_path)
         ))
 
 
