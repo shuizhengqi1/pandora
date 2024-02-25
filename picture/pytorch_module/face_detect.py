@@ -1,15 +1,15 @@
 from picture.abs_face_handle import AbcFaceHandle
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import os
-
+import numpy as np
 from PIL import Image
 import torch
 
 
 class Pytorch(AbcFaceHandle):
-    device = torch.device('cuda')
+    device = torch.device('cpu')
     mtcnn = MTCNN(device=device)
-    resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
+    resnet = InceptionResnetV1(pretrained='vggface2').eval()
 
     def face_detect(self, file_path: str, face_base_path: str):
         # print(f"开始检测{file_path}的人脸数据，保存地址为{face_base_path}")
@@ -32,10 +32,13 @@ class Pytorch(AbcFaceHandle):
         return face_list
 
     def face_recon(self, face_path):
+        print(f"当前图片path:{face_path}")
         try:
-            image = Image.open(face_path)
+            image = Image.open(face_path).convert("RGB")
         except Exception as e:
             print(f"{face_path}文件不存在")
             return
-        embedding = self.resnet(image.unsqueeze(0)).detach().numpy()[0]
+        image_array = np.array(image)
+        image_tensor = torch.from_numpy(image_array).float()
+        embedding = self.resnet(image_tensor.unsqueeze(0)).detach().numpy()[0]
         return embedding

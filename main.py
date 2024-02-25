@@ -21,5 +21,5 @@ if __name__ == '__main__':
     # file_info.find_duplicate_file_list()
     # run_file_scan()
     # run_md5_cal()
-    face_detect.process_all_pic()
-    # face_recon.start_recon()
+    # face_detect.process_all_pic()
+    face_recon.start_recon()

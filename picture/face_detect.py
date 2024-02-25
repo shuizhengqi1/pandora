@@ -46,10 +46,8 @@ def process_all_pic():
         for i in range(total_page):
             pic_list = pic_info_db.get_to_process_pic_list(page_size, i)
             if pic_list:
-
                 for pic_info_domain, file_info_domain in pic_list:
                     future_list.append(detect_executor.submit(handle_file, pic_info_domain, file_info_domain))
-                # handle_file(pic_info_domain, file_info_domain, total_bar)
         for future in concurrent.futures.as_completed(future_list):
             future.result()
             total_bar.update(1)
