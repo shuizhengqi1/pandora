@@ -15,3 +15,5 @@ facenet_pytorch
 tensorflow
 keras-facenet
 annoy
+fastapi
+uvicorn

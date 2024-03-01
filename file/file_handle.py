@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import queue
 import sys
 import time
 
 import data.config as config
-from domain import file_info_db, pic_info_db, video_info_db
+from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db
 import datetime
 from data import process_data
 import threading
@@ -32,13 +33,14 @@ def print_progress():
 
 # 是否隐藏的文件夹
 def skip_dir(directory):
-    return '.' in os.path.basename(directory) or os.path.basename(directory) in config.get_skip_dir_name()
+    skip_dir_name_list = json.load(base_config_db.get_config("skip_dir_name"))
+    return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 
 # 是否需要处理文件
 def filter_need_handle(file_name):
     _, ext = os.path.splitext(file_name)
-    return ext.lower() in config.get_suffix_list()
+    return ext.lower() in media_type_db.get_all()
 
 
 # 具体处理文件的代码
@@ -55,18 +57,18 @@ def handle_file(file_path):
         file_name=file_name,
         file_suffix=file_suffix,
         file_size=file_size,
-        file_type=config.get_suffix_type(file_suffix),
+        file_type=media_type_db.get_media_type_by_suffix(file_suffix),
         create_time=create_time,
         modify_time=modify_time
     )
     file_id = file_info_db.add_file_info(file_info_domain)
     # 记入picInfo数据
-    if config.get_suffix_type(file_suffix) == 'pic':
+    if media_type_db.get_media_type_by_suffix(file_suffix) == 'pic':
         pic_info_db.add_pic_info(pic_info_db.PicInfo(
             file_id=file_id
         ))
     # 记入videoInfo数据
-    if config.get_suffix_type(file_suffix) == 'video':
+    if media_type_db.get_media_type_by_suffix(file_suffix) == 'video':
         video_info_db.add_video_info(video_info_db.VideoInfo(
             file_id=file_id
         ))
@@ -125,12 +127,13 @@ def init_print_thread():
 
 
 def get_file_list():
+    process_path = base_config_db.get_config("scan_process_path")
     # 删除保存的进度
-    if config.remove_process and os.path.exists(config.get_file_scan_process_path()):
-        os.remove(config.get_file_scan_process_path())
+    if os.path.exists(process_path):
+        os.remove(process_path)
     process_data.load_progress()
     # 初始化路径
-    origin_path = config.get_dir_path()
+    origin_path = base_config_db.get_config("start_dir")
     if not origin_path:
         print('请先设置目录路径')
         exit()

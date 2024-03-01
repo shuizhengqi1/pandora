@@ -16,6 +16,13 @@ def init_db():
             break
 
 
+def init_db_with_name(table_name):
+    inspector = inspect(engine)
+    if not inspector.has_table(table_name):
+        print(f"初始化db")
+        Base.metadata.create_all(engine, checkfirst=True)
+
+
 @log_tool.log_process("drop表")
 def drop_table():
     inspector = inspect(engine)
@@ -24,4 +31,3 @@ def drop_table():
             print(f"当前表:{table.__tablename__}已经存在了，执行drop")
             Base.metadata.tables[table.__tablename__].drop(engine)
             print(f"{table.__tablename__}表drop完成")
-

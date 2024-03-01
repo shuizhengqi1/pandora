@@ -48,12 +48,12 @@ def query_total_count(file_type):
 
 
 def get_by_id(file_id):
-    with get_session() as session:
+    with get_session(False) as session:
         return session.get(FileInfo, file_id)
 
 
 def update_file_md5(_id, md5):
-    with get_session() as session:
+    with get_session(True) as session:
         file_info = session.get(FileInfo, _id)
         file_info.file_md5 = md5
 

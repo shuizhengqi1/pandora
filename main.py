@@ -1,25 +1,16 @@
-from db.db_tools import drop_table, init_db
-from file import file_handle, file_md5
-from picture import face_detect,face_recon
-from tool import log_tool
-from domain import file_info_db
+import uvicorn
+from fastapi import FastAPI
+from web.config_api import app as config_api
+from web.file_api import app as file_api
+from db.db_tools import init_db
+from domain import media_type_db, base_config_db
 
-
-@log_tool.log_process("文件扫描")
-def run_file_scan():
-    drop_table()
-    init_db()
-    file_handle.get_file_list()
-
-
-@log_tool.log_process("md5计算")
-def run_md5_cal():
-    file_md5.cal_all_md5()
-
+app = FastAPI()
+app.include_router(config_api, prefix="/config")
+app.include_router(file_api, prefix="/file")
 
 if __name__ == '__main__':
-    # file_info.find_duplicate_file_list()
-    # run_file_scan()
-    # run_md5_cal()
-    # face_detect.process_all_pic()
-    face_recon.start_recon()
+    init_db()
+    media_type_db.init()
+    base_config_db.init()
+    uvicorn.run(app="main:app")
