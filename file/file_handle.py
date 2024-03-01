@@ -33,7 +33,7 @@ def print_progress():
 
 # 是否隐藏的文件夹
 def skip_dir(directory):
-    skip_dir_name_list = json.load(base_config_db.get_config("skip_dir_name"))
+    skip_dir_name_list = json.loads( base_config_db.get_config("skip_dir_name"))
     return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 

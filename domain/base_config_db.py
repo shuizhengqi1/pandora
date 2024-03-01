@@ -38,7 +38,7 @@ def change_config(config_key, config_value):
 
 
 def get_config(config_key):
-    with get_session(False) as session:
+    with get_session(True) as session:
         query = session.query(BaseConfig).filter(BaseConfig.config_key == config_key)
         return query.first().config_value
 
