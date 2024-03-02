@@ -41,6 +41,11 @@ def change_config(config_key, config_value):
             query.first().config_value = config_value
 
 
+def get_all_config():
+    with get_session(False) as session:
+        return session.query(BaseConfig).all()
+
+
 def get_config(config_key):
     with get_session(True) as session:
         query = session.query(BaseConfig).filter(BaseConfig.config_key == config_key)

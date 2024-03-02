@@ -7,9 +7,9 @@ import torch
 
 
 class Pytorch(AbcFaceHandle):
-    device = torch.device('cpu')
+    device = torch.device('cuda')
     mtcnn = MTCNN(device=device)
-    resnet = InceptionResnetV1(pretrained='vggface2').eval()
+    resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
 
     def face_detect(self, file_path: str, face_base_path: str):
         # print(f"开始检测{file_path}的人脸数据，保存地址为{face_base_path}")
@@ -22,9 +22,6 @@ class Pytorch(AbcFaceHandle):
             if not os.path.exists(face_base_path):
                 os.makedirs(face_base_path)
             for i, (box, point) in enumerate(zip(boxes, points)):
-                # print(f"处理第{i}个人脸数据")
-                # 对获取到的每个人脸进行裁剪
-                # print(f"开始裁剪")
                 face = image.crop(box)
                 face_save_path = os.path.join(face_base_path, f'{i}.png')
                 face.save(face_save_path)
@@ -36,7 +33,7 @@ class Pytorch(AbcFaceHandle):
         try:
             image = Image.open(face_path).convert("RGB")
         except Exception as e:
-            print(f"{face_path}文件不存在")
+            print(f"{face_path}文件不存在", e)
             return
         image_array = np.array(image)
         image_tensor = torch.from_numpy(image_array).float()
