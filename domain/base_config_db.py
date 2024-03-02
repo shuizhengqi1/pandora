@@ -20,9 +20,13 @@ def check_config_and_init(config_key):
         query = session.query(BaseConfig).filter(BaseConfig.config_key == config_key)
         result = query.first()
         print(f"{config_key}值为：{result}")
-        if not result and  config.config_json[config_key]:
+        if not result and config.config_json[config_key]:
+            if isinstance(config.config_json[config_key], list):
+                config_value = json.dumps(config.config_json[config_key])
+            else:
+                config_value = config.config_json[config_key]
             print(f"{config_key}不存在，初始化")
-            baseConfig = BaseConfig(config_key=config_key, config_value=json.dumps(config.config_json[config_key]))
+            baseConfig = BaseConfig(config_key=config_key, config_value=str(config_value))
             session.add(baseConfig)
 
 
@@ -40,7 +44,9 @@ def change_config(config_key, config_value):
 def get_config(config_key):
     with get_session(True) as session:
         query = session.query(BaseConfig).filter(BaseConfig.config_key == config_key)
-        return query.first().config_value
+        result = query.first()
+        if result:
+            return result.config_value
 
 
 def init():

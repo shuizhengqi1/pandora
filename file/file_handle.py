@@ -33,14 +33,14 @@ def print_progress():
 
 # 是否隐藏的文件夹
 def skip_dir(directory):
-    skip_dir_name_list = json.loads( base_config_db.get_config("skip_dir_name"))
+    skip_dir_name_list = json.loads(base_config_db.get_config("skip_dir_name"))
     return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 
 # 是否需要处理文件
 def filter_need_handle(file_name):
     _, ext = os.path.splitext(file_name)
-    return ext.lower() in media_type_db.get_all()
+    return ext.lower() in media_type_db.get_all_suffix()
 
 
 # 具体处理文件的代码
@@ -84,10 +84,10 @@ def scan_directory(directory):
     scan_queue.put(directory)
 
     while not scan_queue.empty():
-
         current_dir = scan_queue.get()
         # if current_dir in progress_info['scanned_dirs']:
         #     continue
+        print(f"当前目录是:{current_dir}")
         global _scanDirCount
         global _scanCurrentDir
         _scanCurrentDir = current_dir
@@ -99,19 +99,17 @@ def scan_directory(directory):
                 if entry.is_symlink() or not os.access(entry.path, os.R_OK):
                     continue
                 if entry.is_file() and filter_need_handle(entry.name):
-                    # sys.stdout.write("\033[2J\033[H")
-                    # sys.stdout.write(f"已扫描文件个数：{progress_info['file_count']} \r\n")
-                    # sys.stdout.write(f"扫描到文件：{entry.path}\n")
                     sys.stdout.flush()
                     handle_file(entry.path)
                     progress_info['file_count'] += 1
                 elif entry.is_dir():
                     scan_queue.put(entry.path)
-                    # print('扫描到目录：' + entry.path)
                     progress_info['scanned_dirs'].append(entry.path)
                     process_data.save_process(scan_queue)
         except OSError as e:
-            print(f"Error scanning directory: {e}")
+            print(f"Error scanning directory: {e}", e)
+            import traceback
+            traceback.print_exc()
 
 
 def init_scan_thread(directory):
@@ -127,13 +125,13 @@ def init_print_thread():
 
 
 def get_file_list():
-    process_path = base_config_db.get_config("scan_process_path")
+    process_path = process_data.get_progress_file_path()
     # 删除保存的进度
     if os.path.exists(process_path):
         os.remove(process_path)
     process_data.load_progress()
     # 初始化路径
-    origin_path = base_config_db.get_config("start_dir")
+    origin_path = base_config_db.get_config("start_dir").replace("\\\\", "\\")
     if not origin_path:
         print('请先设置目录路径')
         exit()

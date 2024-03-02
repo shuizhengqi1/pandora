@@ -21,13 +21,20 @@ def get_media_type_map(media_type):
         return query.all()
 
 
+def get_all_suffix():
+    with get_session(False) as session:
+        result = session.query(MediaType).all()
+        if result:
+            return [media_type.media_suffix for media_type in result]
+
+
 def get_all():
     with get_session(False) as session:
         return session.query(MediaType).all()
 
 
 def get_media_type_by_suffix(suffix):
-    return suffix_type_map[suffix]
+    return suffix_type_map[suffix.lower()]
 
 
 def init_local_suffix_map():

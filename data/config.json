@@ -1,7 +1,7 @@
 {
     "start_dir": "J:\\work",
     "scan_interval": 1,
-    "scan_process_path": " ",
+    "scan_process_path": "data",
     "skip_dir_name": [
         "node_modules",
         "jdk",
@@ -12,7 +12,8 @@
         "dev",
         "/usr/share",
         "wifi",
-        "sys"
+        "sys",
+        "venv"
     ],
     "type_map": {
         "video": [
