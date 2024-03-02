@@ -41,7 +41,7 @@ def calculate_md5(file_id, file_path):
     start_time = time.time()
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(1024), b""):
+        for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     end_time = time.time()  # 结束计时
     elapsed_time = end_time - start_time  # 计算耗时

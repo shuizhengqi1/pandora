@@ -5,7 +5,6 @@ from data import config
 table_name = "media_type"
 
 media_type_list = ["video", "pic", "document"]
-suffix_type_map = dict()
 
 
 class MediaType(Base):
@@ -38,11 +37,12 @@ def get_media_type_by_suffix(suffix):
 
 
 def init_local_suffix_map():
-    global suffix_type_map
     result = get_all()
+    local_data = {}
     if result:
         for item in result:
-            suffix_type_map[item.media_suffix] = item.media_type
+            local_data[item.media_suffix] = item.media_type
+    return local_data
 
 
 def check_and_init():
@@ -54,7 +54,9 @@ def check_and_init():
                     session.add(MediaType(media_type=media_type, media_suffix=item))
 
 
+suffix_type_map = init_local_suffix_map()
+
+
 def init():
     check_and_init()
-    init_local_suffix_map()
     print("媒体文件加载完毕")
