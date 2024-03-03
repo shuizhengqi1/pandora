@@ -5,11 +5,10 @@ import queue
 import sys
 import time
 
-import data.config as config
 from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db
 import datetime
 from data import process_data
-import threading
+from tool import executor_tool
 
 _scanFlag = True
 _scanStartTime = 0
@@ -110,18 +109,9 @@ def scan_directory(directory):
             print(f"Error scanning directory: {e}", e)
             import traceback
             traceback.print_exc()
-
-
-def init_scan_thread(directory):
-    scan_thread = threading.Thread(target=scan_directory, args=(directory,))
-    scan_thread.start()
-    return scan_thread
-
-
-def init_print_thread():
-    print_thread = threading.Thread(target=print_progress)
-    print_thread.daemon = True
-    print_thread.start()
+        # 设置全局标记位
+    global _scanFlag
+    _scanFlag = False
 
 
 def get_file_list():
@@ -140,12 +130,9 @@ def get_file_list():
     _scanStartTime = time.time()
 
     # 加载进度
-    init_print_thread()
-    scan_thread = init_scan_thread(origin_path)
-    scan_thread.join()
-    # 设置全局标记位
-    global _scanFlag
-    _scanFlag = False
+    executor_tool.file_pool.submit(print_progress)
+    executor_tool.file_pool.submit(scan_directory, origin_path)
+    executor_tool.file_pool.join()
 
     # 清除当前行并将光标移动到第一行开头
     sys.stdout.write("\033[F\033[K")
