@@ -26,4 +26,4 @@ if __name__ == '__main__':
     init_db()
     media_type_db.init()
     base_config_db.init()
-    uvicorn.run("main:app", access_log=True, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", access_log=True, reload=True)

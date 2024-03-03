@@ -7,9 +7,14 @@ import torch
 
 
 class Pytorch(AbcFaceHandle):
-    device = torch.device('cuda')
+    if torch.cuda.is_available():
+        print("使用cuda")
+        device = torch.device('cuda')
+        resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
+    else:
+        print("使用cpu")
+        device = torch.device('cpu')
     mtcnn = MTCNN(device=device)
-    resnet = InceptionResnetV1(pretrained='vggface2').eval().cuda(device)
 
     def face_detect(self, file_path: str, face_base_path: str):
         # print(f"开始检测{file_path}的人脸数据，保存地址为{face_base_path}")
