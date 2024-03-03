@@ -32,18 +32,22 @@ def add_file_info(file_info: FileInfo):
         return file_info.id
 
 
-def query_unprocessed_file_list(file_type):
+def query_unprocessed_file_list():
     with get_session(False) as session:
-        query = session.query(FileInfo).filter(FileInfo.file_type == file_type).filter(
-            FileInfo.file_md5 == 'tmp').limit(20)
+        query = session.query(FileInfo).filter(FileInfo.file_md5 == 'tmp').limit(20)
         result_list = query.all()
         return result_list
 
 
-def query_total_count(file_type):
+def query_need_cal_md5_count():
     with get_session(False) as session:
-        query = session.query(FileInfo).filter(FileInfo.file_type == file_type).filter(
-            FileInfo.file_md5 == 'tmp')
+        query = session.query(FileInfo).filter(FileInfo.file_md5 == 'tmp')
+        return query.count()
+
+
+def get_file_total_count():
+    with get_session(False) as session:
+        query = session.query(FileInfo)
         return query.count()
 
 
