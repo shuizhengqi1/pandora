@@ -39,6 +39,13 @@ def query_unprocessed_file_list():
         return result_list
 
 
+def get_all_data():
+    with get_session(False) as session:
+        query = session.query(FileInfo)
+        result_list = query.all()
+        return result_list
+
+
 def query_need_cal_md5_count():
     with get_session(False) as session:
         query = session.query(FileInfo).filter(FileInfo.file_md5 == 'tmp')

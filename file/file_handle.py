@@ -15,6 +15,8 @@ _scanStartTime = 0
 _scanCurrentDir = ""
 _scanDirCount = 0
 
+exist_data = set()
+
 
 def print_progress():
     print("\n\n")
@@ -37,9 +39,9 @@ def skip_dir(directory):
 
 
 # 是否需要处理文件
-def filter_need_handle(file_name):
+def filter_need_handle(file_path, file_name):
     _, ext = os.path.splitext(file_name)
-    return ext.lower() in media_type_db.get_all_suffix()
+    return file_path + "-" + file_name not in exist_data and ext.lower() in media_type_db.get_all_suffix()
 
 
 # 具体处理文件的代码
@@ -97,7 +99,7 @@ def scan_directory(directory):
             for entry in os.scandir(current_dir):
                 if entry.is_symlink() or not os.access(entry.path, os.R_OK):
                     continue
-                if entry.is_file() and filter_need_handle(entry.name):
+                if entry.is_file() and filter_need_handle(entry.path, entry.name):
                     sys.stdout.flush()
                     handle_file(entry.path)
                     progress_info['file_count'] += 1
@@ -112,6 +114,7 @@ def scan_directory(directory):
         # 设置全局标记位
     global _scanFlag
     _scanFlag = False
+    print("扫描完成")
 
 
 def get_file_list():
@@ -126,9 +129,14 @@ def get_file_list():
         print('请先设置目录路径')
         exit()
     print('开始扫描目录：' + origin_path)
+    # 加载已经扫描过的数据
+    exist_data_list = file_info_db.get_all_data()
+    if exist_data_list:
+        for item in exist_data_list:
+            exist_data.add(item.file_path + "-" + item.file_name)
+
     global _scanStartTime
     _scanStartTime = time.time()
-
     # 加载进度
     executor_tool.file_pool.submit(print_progress)
     executor_tool.file_pool.submit(scan_directory, origin_path)
