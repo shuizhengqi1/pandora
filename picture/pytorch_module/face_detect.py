@@ -31,6 +31,7 @@ class Pytorch(AbcFaceHandle):
                 face_save_path = os.path.join(face_base_path, f'{i}.png')
                 face.save(face_save_path)
                 face_list.append(face_save_path)
+        torch.cuda.empty_cache()
         return face_list
 
     def face_recon(self, face_path):
