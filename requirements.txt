@@ -16,6 +16,6 @@ tensorflow
 keras-facenet
 fastapi
 uvicorn
-fastui
 nicegui
 pydantic
+ultralytics
