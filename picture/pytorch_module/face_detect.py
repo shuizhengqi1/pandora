@@ -14,9 +14,14 @@ class Pytorch(AbcFaceHandle):
     else:
         print("使用cpu")
         device = torch.device('cpu')
-    mtcnn = MTCNN(device=device)
+    mtcnn = None
+
+    def init_mtcnn(self):
+        if not self.mtcnn:
+            self.mtcnn = MTCNN(device=self.device)
 
     def face_detect(self, file_path: str, face_base_path: str):
+        self.init_mtcnn()
         # print(f"开始检测{file_path}的人脸数据，保存地址为{face_base_path}")
         # 读取图片
         image = Image.open(file_path).convert("RGB")
@@ -35,6 +40,7 @@ class Pytorch(AbcFaceHandle):
         return face_list
 
     def face_recon(self, face_path):
+        self.init_mtcnn()
         print(f"当前图片path:{face_path}")
         try:
             image = Image.open(face_path).convert("RGB")

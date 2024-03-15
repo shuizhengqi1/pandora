@@ -5,7 +5,7 @@ import queue
 import sys
 import time
 
-from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db
+from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db, FileInfo
 import datetime
 from data import process_data
 from tool import executor_tool
@@ -147,3 +147,20 @@ def get_file_list():
     # 清除下一行并将光标移动到第二行开头
     print(
         f"处理完成，共计耗时{int(time.time() - _scanStartTime)}秒 处理了{process_data.get_progress()['file_count']}个文件，扫描了{_scanDirCount} 个文件夹 \n")
+
+
+def file_delete(file: FileInfo):
+    if not file:
+        raise ValueError("要删除的文件对象不能为空")
+    if not os.path.exists(file.file_path):
+        print(f"要删除的文件:{file.file_path}不存在，不做处理")
+        return
+    if not os.path.isfile(file.file_path):
+        print(f"要删除的文件:{file.file_path}不是文件，不做处理")
+        return
+    try:
+        os.remove(file.file_path)
+        print(f"文件{file.file_path}删除成功")
+        file_info_db.delete_by_id_list([file.id])
+    except OSError as e:
+        print(f"删除文件 {file.file_path} 时出错: {e}")

@@ -6,7 +6,7 @@ from tool import executor_tool
 app = APIRouter()
 
 
-@app.get("/face_detect")
+@app.get("/faceDetect")
 async def run_face_detect():
     executor_tool.file_pool.submit(face_detect.process_all_pic)
     return "成功检测人脸"

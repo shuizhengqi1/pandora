@@ -46,6 +46,16 @@ def get_all_data():
         return result_list
 
 
+def page_list(file_type, page_size, page_num):
+    with get_session(False) as session:
+        query = session.query(FileInfo)
+        if file_type:
+            query = query.filter(FileInfo.file_type == file_type)
+        query = query.limit(page_size).offset((page_num - 1) * page_size)
+        result_list = query.all()
+        return result_list
+
+
 def query_need_cal_md5_count():
     with get_session(False) as session:
         query = session.query(FileInfo).filter(FileInfo.file_md5 == 'tmp')
@@ -56,6 +66,20 @@ def get_file_total_count():
     with get_session(False) as session:
         query = session.query(FileInfo)
         return query.count()
+
+
+def get_file_by_md5(md5):
+    if not md5:
+        raise ValueError("要查询的md5不能为空")
+    with get_session(False) as session:
+        query = session.query(FileInfo).filter(FileInfo.file_md5 == md5)
+        return query.all()
+
+
+def get_type_count():
+    with get_session(False) as session:
+        query = session.query(FileInfo.file_type, func.count(FileInfo.file_type)).group_by(FileInfo.file_type)
+        return query.all()
 
 
 def get_by_id(file_id):
@@ -69,15 +93,41 @@ def update_file_md5(_id, md5):
         file_info.file_md5 = md5
 
 
+def get_by_id_list(file_id_list):
+    with get_session(False) as session:
+        return session.query(FileInfo).filter(FileInfo.id.in_(file_id_list)).all()
+
+
+def delete_by_id_list(file_id_list):
+    with get_session(False) as session:
+        return session.query(FileInfo).filter(FileInfo.id.in_(file_id_list)).delete()
+
+
 def find_duplicate_file_list():
     with (get_session() as session):
         # 查询重复的md5数据
-        duplicate_md5_query = select(FileInfo.file_md5, func.count(FileInfo.file_md5)).group_by(
-            FileInfo.file_md5).having(func.count(FileInfo.file_md5) > 1).alias()
-        total_query = session.query(FileInfo, duplicate_md5_query.c.count).join(duplicate_md5_query,
-                                                                                FileInfo.file_md5 ==
-                                                                                duplicate_md5_query.c.file_md5
-                                                                                ).order_by(FileInfo.file_md5)
+        duplicate_md5_subquery = session.query(
+            FileInfo.file_md5,
+            func.count(FileInfo.file_md5).label('count'),
+            func.min(FileInfo.id).label('min_id')  # 获取每组文件中ID最小的文件
+        ).group_by(
+            FileInfo.file_md5
+        ).having(
+            func.count(FileInfo.file_md5) > 1
+        ).subquery()
+
+        # 关联原始FileInfo表和子查询，以获取每组的第一个文件的详细信息
+        total_query = session.query(
+            FileInfo,
+            duplicate_md5_subquery.c.count
+        ).join(
+            duplicate_md5_subquery,
+            FileInfo.file_md5 == duplicate_md5_subquery.c.file_md5
+        ).filter(
+            FileInfo.id == duplicate_md5_subquery.c.min_id  # 只选择每组中ID最小的文件
+        ).order_by(
+            duplicate_md5_subquery.c.count.desc()
+        )
         duplicate_file_list = total_query.all()
         if duplicate_file_list:
             for file_info, count in duplicate_file_list:

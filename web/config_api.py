@@ -1,4 +1,3 @@
-from typing import Union
 from fastapi import APIRouter
 from domain import base_config_db
 
