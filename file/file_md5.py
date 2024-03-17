@@ -45,14 +45,14 @@ def get_count_info():
 def calculate_md5(file_id, file_path):
     start_time = time.time()
     hash_md5 = hashlib.md5()
-    file_size = os.stat(file_path).st_size
+    file_size = round(os.stat(file_path).st_size/(1024 * 1024), 1)
     with open(file_path, "rb") as f, tqdm(total=file_size,
-                                          bar_format="文件读取进度：{percentage:3.0f}%|{bar}|已处理{n_fmt}/总数{total_fmt}",
+                                          bar_format="文件读取进度：{percentage:3.0f}%|{bar}|已处理{n_fmt}mb/总数{total_fmt}mb",
                                           smoothing=0) as file_bar:
-        batch_size = 8192
+        batch_size = 10*1024*1024
         for chunk in iter(lambda: f.read(batch_size), b""):
             hash_md5.update(chunk)
-            file_bar.update(batch_size)
+            file_bar.update(5)
     end_time = time.time()  # 结束计时
     elapsed_time = end_time - start_time  # 计算耗时
     file_info_db.update_file_md5(file_id, hash_md5.hexdigest())

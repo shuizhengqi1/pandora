@@ -59,7 +59,7 @@ async def page_list(pageSize: int = 100, pageNum: int = 1):
 
 @app.get("/getDuplicateList")
 async def get_duplicate_list():
-    return file_info_db.find_duplicate_file_list();
+    return file_info_db.find_duplicate_file_list()
 
 
 @app.get("/findByMd5")
