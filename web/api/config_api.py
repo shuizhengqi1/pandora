@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from domain import base_config_db
 
-app = APIRouter()
+app = APIRouter(prefix="/api/config")
 
 
 @app.get("/change_dir")

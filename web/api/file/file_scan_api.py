@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from file import file_handle
 from tool import executor_tool
 
-app = APIRouter()
+app = APIRouter(prefix="/fileScan")
 
 
 @app.get("/start")

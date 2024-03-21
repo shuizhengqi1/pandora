@@ -2,24 +2,26 @@ import sys
 
 import uvicorn
 from fastapi import FastAPI
-from web.config_api import app as config_api
-from web.file import app as file_api
-from web.pic import app as pic_api
+from web.api.config_api import app as config_api
+from web.api.file import app as file_api
+from web.api.pic import app as pic_api
 from db.db_tools import init_db
 from domain import media_type_db, base_config_db
 import atexit
 from tool import executor_tool
+import web.frontend
 
 app = FastAPI(docs_url="/doc", redoc_url=None)
-app.include_router(config_api, prefix="/config")
-app.include_router(file_api, prefix="/file")
-app.include_router(pic_api, prefix="/pic")
+app.include_router(config_api)
+app.include_router(file_api)
+app.include_router(pic_api)
 
 
 @app.get("/")
 async def root():
     return "root"
 
+web.frontend.init(app)
 
 if __name__ == '__main__':
     init_db()

@@ -1,12 +1,9 @@
-from typing import Any
-
-from tool import executor_tool
 from fastapi import APIRouter
 from domain import file_info_db, FileInfo
 from pydantic import BaseModel
-from web.vo.page_info import PageInfo
+from web.api.vo.page_info import PageInfo
 
-app = APIRouter()
+app = APIRouter(prefix="/view")
 
 
 class TypeCountVo(BaseModel):

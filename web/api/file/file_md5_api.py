@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from file import file_handle, file_md5
 from pydantic import BaseModel
 
-app = APIRouter()
+app = APIRouter(prefix="/fileMd5")
 
 
 class FileCount(BaseModel):
