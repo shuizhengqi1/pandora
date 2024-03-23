@@ -1,19 +1,19 @@
 from fastapi import FastAPI
-from nicegui import app, ui
-
-from web.frontend.file_view_page import page_router
+from nicegui import ui
+import web.frontend.page_template
+import web.frontend.file_view_page
 
 
 def init(fastapi_app: FastAPI) -> None:
     @ui.page('/')
-    def show():
-        ui.label('Hello, FastAPI!')
+    def show() -> None:
+        with page_template.frame("潘多拉"):
+            ui.label('Hello, FastAPI!')
+            # NOTE dark mode will be persistent for each user across tabs and server restarts
+            ui.dark_mode()
+            ui.checkbox('dark mode')
 
-        # NOTE dark mode will be persistent for each user across tabs and server restarts
-        ui.dark_mode().bind_value(app.storage.user, 'dark_mode')
-        ui.checkbox('dark mode').bind_value(app.storage.user, 'dark_mode')
-
-    fastapi_app.include_router(page_router)
+    fastapi_app.include_router(file_view_page.router, prefix="/ui/file")
 
     ui.run_with(
         fastapi_app,

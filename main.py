@@ -21,6 +21,7 @@ app.include_router(pic_api)
 async def root():
     return "root"
 
+
 web.frontend.init(app)
 
 if __name__ == '__main__':
@@ -28,5 +29,6 @@ if __name__ == '__main__':
     media_type_db.init()
     base_config_db.init()
     atexit.register(executor_tool.clean)
+
     uvicorn.run("main:app", host="0.0.0.0", access_log=True, reload=True)
     sys.exit()

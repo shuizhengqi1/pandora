@@ -1,14 +1,12 @@
-import requests
-from nicegui import APIRouter
-from web.frontend import ui
-from web.api.file import file_view
+from nicegui import APIRouter, app
+from nicegui import ui
+from web.frontend import page_template
 
-page_router = APIRouter(prefix="/ui/file")
+router = APIRouter()
 
 
-@page_router.page("/list")
+@router.page("/list", title="sad")
 def file_table():
-    ui.label("文件列表")
     columns = [
         {'name': 'fileName', 'label': '文件名', 'field': 'fileName', 'required': True, 'align': 'left'},
         {'name': 'fileSize', 'label': '文件大小', 'field': 'fileSize', 'sortable': True},
@@ -18,3 +16,8 @@ def file_table():
     ]
     ui.table(columns=columns, rows=[], row_key="fileName")
     print("s")
+
+
+@router.page("/", title="文件列表")
+def file_table():
+    ui.label("文件列表")
