@@ -26,12 +26,11 @@ class FileInfoVo(BaseModel):
     def __init__(self, file_info: FileInfo):
         super().__init__(
             fileName=file_info.file_name,
-            fileSize=f"{file_info.file_size}/mb",
+            fileSize=f"{file_info.file_size}mb",
             fileMd5=file_info.file_md5,
             filePath=file_info.file_path,
             fileType=file_info.file_type
         )
-
 
 @app.get("/getCount")
 async def get_count():

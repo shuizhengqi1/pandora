@@ -22,6 +22,7 @@ async def init(drop: bool):
         media_type_db.init()
     return "初始化成功"
 
+
 @app.post("/delete")
 async def delete_file_list(file_id_list: FileIdList):
     file_list = file_info_db.get_by_id_list(file_id_list.fileIdList)
