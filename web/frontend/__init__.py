@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from nicegui import ui
 import web.frontend.page_template
 import web.frontend.file_view_page
+import web.frontend.config_page
 
 
 def init(fastapi_app: FastAPI) -> None:
@@ -14,6 +15,7 @@ def init(fastapi_app: FastAPI) -> None:
             ui.checkbox('dark mode')
 
     fastapi_app.include_router(file_view_page.router, prefix="/ui/file")
+    fastapi_app.include_router(config_page.router, prefix="/ui/config")
 
     ui.run_with(
         fastapi_app,

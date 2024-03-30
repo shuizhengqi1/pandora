@@ -1,5 +1,5 @@
 import sys
-
+from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from web.api.config_api import app as config_api
@@ -10,12 +10,21 @@ from domain import media_type_db, base_config_db
 import atexit
 from tool import executor_tool
 import web.frontend
+import webbrowser
 
-app = FastAPI(docs_url="/doc", redoc_url=None)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
+    webbrowser.open("http://localhost:8000/ui")
+    yield
+    # Clean up the ML models and release the resources
+
+
+app = FastAPI(docs_url="/doc", redoc_url=None, lifespan=lifespan)
 app.include_router(config_api)
 app.include_router(file_api)
 app.include_router(pic_api)
-
 
 @app.get("/")
 async def root():

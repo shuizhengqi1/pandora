@@ -5,7 +5,7 @@ import json
 
 table_name = "base_config"
 
-config_key_list = ["start_dir", "scan_interval", "scan_process_path", "skip_dir_name"]
+config_key_list = ["start_dir", "scan_interval", "scan_process_path", "skip_dir_name","pic_tmp_path"]
 
 
 class BaseConfig(Base):

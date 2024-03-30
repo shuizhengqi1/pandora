@@ -5,7 +5,7 @@ from tool import log_tool
 
 # noinspection PyUnresolvedReferences
 from sqlalchemy import create_engine, MetaData, Table, inspect, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, \
-    LargeBinary
+    LargeBinary,FLOAT
 
 # Base信息
 Base = declarative_base()

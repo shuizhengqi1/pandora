@@ -1,5 +1,4 @@
-from nicegui import APIRouter, app
-from nicegui import ui
+from nicegui import APIRouter, ui
 from web.frontend import page_template
 from web.api.file import file_view
 

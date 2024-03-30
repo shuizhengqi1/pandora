@@ -5,5 +5,6 @@ from domain.video_info_db import VideoInfo
 from domain.pic_face_relation_db import PicFaceRelation
 from domain.base_config_db import BaseConfig
 from domain.media_type_db import MediaType
+from domain.object_detect_db import ObjectDetect
 
-domain_list = [FaceInfo, FileInfo, PicInfo, VideoInfo, PicFaceRelation, BaseConfig, MediaType]
+domain_list = [FaceInfo, FileInfo, PicInfo, VideoInfo, PicFaceRelation, BaseConfig, MediaType, ObjectDetect]
