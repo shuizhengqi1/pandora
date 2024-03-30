@@ -14,7 +14,8 @@ async def config_table():
             for config in config_list:
                 with ui.row():
                     # 使用 ui.label 创建标签
-                    label = ui.label(config['fieldKey']).style("width: 200px")
+                    label = ui.label(config['fieldKey']).style("width: 200px;display: "
+                                                               "flex;align-items: center;vertical-align: middle")
                     # 设置标签的宽度，避免过长
                     # 使用 ui.input 创建输入框
                     input_box = ui.input(value=config['fieldValue']).style("width: 300px")
