@@ -44,9 +44,3 @@ async def save_config(config_map):
     await config_api.change_config(config_map)
     ui.notify(f"配置更新成功")
 
-
-async def refresh_config_info():
-    # 重新获取配置信息并更新config_map
-    new_config_map = await config_api.show_config_info()
-    # 更新字典，这里需要注意线程安全和数据同步的问题
-    config_map.update(new_config_map)
