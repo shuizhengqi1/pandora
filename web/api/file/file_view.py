@@ -22,6 +22,7 @@ class FileInfoVo(BaseModel):
     fileMd5: str
     filePath: str
     fileType: str
+    fileId: int
 
     def __init__(self, file_info: FileInfo):
         super().__init__(
@@ -29,8 +30,10 @@ class FileInfoVo(BaseModel):
             fileSize=f"{file_info.file_size}mb",
             fileMd5=file_info.file_md5,
             filePath=file_info.file_path,
-            fileType=file_info.file_type
+            fileType=file_info.file_type,
+            fileId=file_info.id
         )
+
 
 @app.get("/getCount")
 async def get_count():

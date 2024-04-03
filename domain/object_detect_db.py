@@ -4,7 +4,7 @@ from sqlalchemy import select
 from domain import file_info_db
 from enum import Enum
 
-table_name = 'object_detect'
+table_name = 'yolo'
 
 
 class ObjectDetect(Base):

@@ -1,13 +1,8 @@
 from db.db_base import Base, Column, INTEGER, String, LargeBinary, SMALLINT, BLOB, get_session
 from enum import Enum
+from domain.enums import FaceReconStatus
 
 table_name = "face_info"
-
-
-class FaceReconStatus(Enum):
-    INIT = 0
-    SUCCESS = 1
-    FAIL = 2
 
 
 class FaceInfo(Base):

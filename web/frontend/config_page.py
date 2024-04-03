@@ -1,4 +1,5 @@
 from nicegui import APIRouter, ui
+from domain.enums import ConfigKeyEnum
 from web.frontend import page_template
 from web.api.file import file_view
 from web.api import config_api
@@ -16,17 +17,39 @@ async def config_table() -> None:
         # 扫描地址
         with ui.row():
             ui.label("扫描地址").style("width: 200px;display: flex;align-items: center;vertical-align: middle")
-            ui.input(value=config_map["start_dir"]).bind_value_to(config_map, "start_dir",
-                                                                  lambda value: value).style("width: 300px")
+            ui.input(value=config_map[ConfigKeyEnum.START_DIR.value]).bind_value_to(config_map,
+                                                                                    ConfigKeyEnum.START_DIR.value,
+                                                                                    lambda value: value).style(
+                "width: 300px")
             # 扫描地址
         with ui.row():
             ui.label("忽略的目录").style("width: 200px;display: flex;align-items: center;vertical-align: middle")
-            ui.input(value=config_map['skip_dir_name']).bind_value_to(config_map, "skip_dir_name",
-                                                                      lambda value: value).style("width: 300px")
+            ui.input(value=config_map[ConfigKeyEnum.SKIP_DIR_NAME.value]).bind_value_to(config_map,
+                                                                                        ConfigKeyEnum.SKIP_DIR_NAME.value,
+                                                                                        lambda value: value).style(
+                "width: 300px")
         with ui.row():
             ui.label("进度保存目录").style("width: 200px;display: flex;align-items: center;vertical-align: middle")
-            ui.input(value=config_map['scan_process_path']).bind_value_to(config_map, "scan_process_path",
-                                                                          lambda value: value).style("width: 300px")
+            ui.input(value=config_map[ConfigKeyEnum.SCAN_PROCESS_PATH.value]).bind_value_to(config_map,
+                                                                                            ConfigKeyEnum.SCAN_PROCESS_PATH.value,
+                                                                                            lambda value: value).style(
+                "width: 300px")
+
+        with ui.row():
+            ui.label("检测裁剪图保存地址").style(
+                "width: 200px;display: flex;align-items: center;vertical-align: middle")
+            ui.input(value=config_map[ConfigKeyEnum.PIC_TMP_PATH.value]).bind_value_to(config_map,
+                                                                                       ConfigKeyEnum.PIC_TMP_PATH.value,
+                                                                                       lambda value: value).style(
+                "width: 300px")
+
+        with ui.row():
+            ui.label("模型地址").style(
+                "width: 200px;display: flex;align-items: center;vertical-align: middle")
+            ui.input(value=config_map[ConfigKeyEnum.MODEL_PATH.value]).bind_value_to(config_map,
+                                                                                     ConfigKeyEnum.MODEL_PATH.value,
+                                                                                     lambda value: value).style(
+                "width: 300px")
 
 
 @router.page("/", title="配置读取")
@@ -43,4 +66,3 @@ async def save_config(config_map):
     print(f"new value is {config_map}")
     await config_api.change_config(config_map)
     ui.notify(f"配置更新成功")
-

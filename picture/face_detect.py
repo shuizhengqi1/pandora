@@ -7,8 +7,6 @@ import concurrent.futures
 import multiprocessing
 from picture.pytorch_module.face_detect import Pytorch
 
-# from picture.keras_module.face_detect import Keras
-
 save_path = 'face_icon'
 num_cores = multiprocessing.cpu_count()
 
@@ -97,13 +95,3 @@ def add_face_info(pic_id, face_list):
         ))
 
 
-def check1_embedding(face1, face2):
-    # face1_embedding = resnet(mtcnn(face1).unsqueeze(0))
-    # face2_embedding = resnet(mtcnn(face2).unsqueeze(0))
-    distance = (face1 - face2).norm().item()
-    # 设定阈值并判断是否为同一个人
-    threshold = 1  # 阈值可以根据实际情况调整
-    if distance < threshold:
-        print("face1和face2是同一个人")
-    else:
-        print("face1和face2不是同一个人")

@@ -2,17 +2,11 @@ from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, 
 from sqlalchemy import select
 from domain import file_info_db
 from enum import Enum
+from domain.enums import PicHandleStatus
 
 from tool.log_tool import log_duration
 
 table_name = 'pic_info'
-
-
-class PicHandleStatus(Enum):
-    INIT = 0
-    DONE = 1
-    WAIT_CON = 2
-    ERROR = 3
 
 
 class PicInfo(Base):

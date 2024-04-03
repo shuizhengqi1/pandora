@@ -12,7 +12,6 @@ from tool import executor_tool
 import web.frontend
 import webbrowser
 
-
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
 #     # Load the ML model
@@ -25,6 +24,7 @@ app = FastAPI(docs_url="/doc", redoc_url=None)
 app.include_router(config_api)
 app.include_router(file_api)
 app.include_router(pic_api)
+
 
 @app.get("/")
 async def root():

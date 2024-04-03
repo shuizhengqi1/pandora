@@ -2,7 +2,10 @@
   "start_dir": "J:\\work",
   "scan_interval": 1,
   "scan_process_path": "data",
-  "pic_tmp_path": "",
+  "pic_tmp_path": "/s",
+  "model_path": {
+    "yolo": "tmp/model/yolo"
+  },
   "skip_dir_name": [
     "node_modules",
     "jdk",
