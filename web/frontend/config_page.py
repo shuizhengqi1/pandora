@@ -1,7 +1,7 @@
 from nicegui import APIRouter, ui
 from domain.enums import ConfigKeyEnum
 from web.frontend import page_template
-from web.api.file import file_view
+from web.api.file import file_view_api
 from web.api import config_api
 
 router = APIRouter()

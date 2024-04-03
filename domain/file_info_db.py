@@ -20,8 +20,8 @@ class FileInfo(Base):
 
 
 def delete_all():
-    with get_session() as session:
-        session.delete()
+    with get_session(True) as session:
+        session.query(FileInfo).delete()
         print(f"清理所有数据")
 
 

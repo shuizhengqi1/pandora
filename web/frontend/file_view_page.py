@@ -1,6 +1,6 @@
 from nicegui import APIRouter, ui, events
 from web.frontend import page_template
-from web.api.file import file_view
+from web.api.file import file_view_api, file_api, file_scan_api
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ async def file_table() -> None:
         {'name': 'fileType', 'label': '文件类型', 'field': 'fileType'}
     ]
 
-    file_page_info = await file_view.page_list(page_size, current_page)
+    file_page_info = await file_view_api.page_list(page_size, current_page)
     file_list = [file_info.dict() for file_info in file_page_info.data]
     ui.table(columns=columns,
              rows=file_list,
@@ -43,12 +43,19 @@ async def on_pagination_change(pagination):
     global pageInfo
     pageInfo['page'] = pagination['page']
     pageInfo['rowsPerPage'] = pagination['rowsPerPage']
-    file_page_info = await file_view.page_list(pageInfo['page'], pageInfo['rowsPerPage'])
+    file_page_info = await file_view_api.page_list(pageInfo['page'], pageInfo['rowsPerPage'])
     file_table.refresh()
 
 
+@router.page("/", title="文件列表")
+async def file_page_index():
+    with page_template.frame("潘多拉"):
+        with ui.row():
+            ui.button("扫描文件", on_click=clean_and_start_scan)
+            ui.button("计算md5")
+            ui.button("物体检测")
 
-# @router.page("/", title="文件列表")
-# async def file_table():
-#     with page_template.frame("潘多拉"):
-#         ui.label("文件列表")
+
+async def clean_and_start_scan():
+    await file_scan_api.run_file_scan()
+    ui.notify("已清理数据，并开始扫描")

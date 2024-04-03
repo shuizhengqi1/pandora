@@ -10,4 +10,4 @@ app = APIRouter()
 async def run_face_detect(file_id: int):
     file_info = file_info_db.get_by_id(file_id)
     object_detect.start_detect(file_info)
-    return "成功检测人脸"
+    return "物体检测完成"

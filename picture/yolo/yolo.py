@@ -4,13 +4,15 @@ import numpy as np
 import requests
 from ultralytics import YOLO
 from PIL import Image
-from domain import object_detect_db
 from domain import base_config_db
+from domain.object_detect_db import ObjectDetect
 
 download_url = "https://iotxing-1253163150.cos.ap-shanghai.myqcloud.com/yolov8x.pt"
 
 yolo_path = None
 yolo_file_name = "yolov8x.pt"
+
+model = None
 
 
 def check_and_download_model():
@@ -29,8 +31,9 @@ def check_and_download_model():
             print(f"开始下载 存储地址:{yolo_path}")
             with open(os.path.join(yolo_path, yolo_file_name), 'wb') as file:
                 file.write(response.content)
-        else:nn
-            print(f"从 {download_url} 下载文件失败，状态码：{response.status_code}")
+        else:
+            nn
+        print(f"从 {download_url} 下载文件失败，状态码：{response.status_code}")
 
 
 # yolo中的result是个多维数组，shape的数据是[物体数量,6]或者[物体数量,7]。boxes本身是个对象，由多个数组组成的。
@@ -38,7 +41,10 @@ def check_and_download_model():
 # 各个数组里面都存储的信息，需要用下标去
 
 def detect(file_path, tmp_save_path):
-    model = YOLO(os.path.join(yolo_path, yolo_file_name))
+    global model
+    if not model:
+        print(f"当前模型不存在，加载模型数据")
+        model = YOLO(os.path.join(yolo_path, yolo_file_name))
     # 读取图片
     img = Image.open(file_path)
     # 图片预处理
@@ -63,10 +69,10 @@ def detect(file_path, tmp_save_path):
             crop_save_path = os.path.join(tmp_save_path, f'{cls_name}_{objects_count[cls_name]}.jpg')
             object_img.save(crop_save_path)
 
-            return object_detect_db.ObjectDetect(
+            return ObjectDetect(
                 object_name=cls_name,
                 conf=confidence,
-                object_detect_db=crop_save_path
+                object_crop_path=crop_save_path
             )
 
 

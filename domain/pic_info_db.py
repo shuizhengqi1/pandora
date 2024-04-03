@@ -1,7 +1,5 @@
 from db.db_base import Base, Column, INTEGER, String, DATETIME, SMALLINT, BLOB, get_session, engine, meta_data, Table
-from sqlalchemy import select
 from domain import file_info_db
-from enum import Enum
 from domain.enums import PicHandleStatus
 
 from tool.log_tool import log_duration
@@ -19,8 +17,8 @@ class PicInfo(Base):
 
 
 def delete_all():
-    with get_session() as session:
-        session.delete()
+    with get_session(True) as session:
+        session.query(PicInfo).delete()
         print(f"清理所有数据")
 
 
