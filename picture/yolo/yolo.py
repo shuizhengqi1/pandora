@@ -50,11 +50,13 @@ def detect(file_path, tmp_save_path):
     # 图片预处理
     # 物体检测
     results = model.predict(source=np.array(img), conf=0.5)
+    object_result_list = []
     for result in results:
         # 物体总数量
         shape_count = result.boxes.shape[0]
         # 初始化统计字典
         objects_count = {}
+
         for i in range(shape_count):
             cls_name = result.names[int(result.boxes.cls[i].item())]
             confidence = round(float(result.boxes.conf[i].item()), 2)
@@ -69,11 +71,12 @@ def detect(file_path, tmp_save_path):
             crop_save_path = os.path.join(tmp_save_path, f'{cls_name}_{objects_count[cls_name]}.jpg')
             object_img.save(crop_save_path)
 
-            return ObjectDetect(
+            object_result_list.append(ObjectDetect(
                 object_name=cls_name,
                 conf=confidence,
                 object_crop_path=crop_save_path
-            )
+            ))
+    return object_result_list
 
 
 check_and_download_model()
