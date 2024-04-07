@@ -5,10 +5,12 @@ from web.api.file import file_view_api, file_api, file_scan_api
 router = APIRouter()
 
 file_data_list = None
-page_size = 20
-current_page = 1
-
-pagination = {}
+pagination = {
+    "page": 1,
+    "rowsPerPage": 20,
+    "descending": "s",
+    "rowsNumber": 999
+}
 
 
 @router.page("/list", title="文件列表")
@@ -19,7 +21,6 @@ async def show_file_table() -> None:
 
 @ui.refreshable
 async def file_table() -> None:
-    global current_page
     columns = [
         {'name': 'fileId', 'label': '文件id', 'field': 'fileId', 'required': True, 'align': 'left'},
         {'name': 'fileName', 'label': '文件名', 'field': 'fileName', 'required': True, 'align': 'left'},
@@ -29,21 +30,25 @@ async def file_table() -> None:
         {'name': 'fileType', 'label': '文件类型', 'field': 'fileType'}
     ]
 
-    file_page_info = await file_view_api.page_list(page_size, current_page)
-    file_list = [file_info.dict() for file_info in file_page_info.data]
-    ui.table(columns=columns,
-             rows=file_list,
-             pagination={'rowsPerPage': file_page_info.pageSize, 'page': current_page,
-                         'rowsNumber': file_page_info.totalCount},
-             on_pagination_change=on_pagination_change,
-             row_key="fileName")
+    table = ui.table(columns=columns,
+                     rows=await load_file_info(),
+                     pagination=pagination,
+                     row_key="fileName")
+    table.on("request", on_file_page_change)
 
 
-async def on_pagination_change(pagination):
-    global pageInfo
-    pageInfo['page'] = pagination['page']
-    pageInfo['rowsPerPage'] = pagination['rowsPerPage']
-    file_page_info = await file_view_api.page_list(pageInfo['page'], pageInfo['rowsPerPage'])
+async def load_file_info():
+    global pagination
+    file_page_info = await file_view_api.page_list(pagination['rowsPerPage'], pagination['page'])
+    pagination['page'] = file_page_info.pageNum
+    pagination['rowsPerPage'] = file_page_info.pageSize
+    pagination['rowsNumber'] = file_page_info.totalCount
+    return [file_info.dict() for file_info in file_page_info.data]
+
+
+async def on_file_page_change(request):
+    global pagination
+    pagination.update(request.args['pagination'])
     file_table.refresh()
 
 
