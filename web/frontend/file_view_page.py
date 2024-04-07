@@ -1,6 +1,7 @@
 from nicegui import APIRouter, ui, events
 from web.frontend import page_template
-from web.api.file import file_view_api, file_api, file_scan_api
+from web.api.file import file_view_api, file_api, file_scan_api, file_md5_api
+from web.api.pic import pic_operate_api
 
 router = APIRouter()
 
@@ -32,8 +33,24 @@ async def file_table() -> None:
 
     table = ui.table(columns=columns,
                      rows=await load_file_info(),
+                     selection="multiple",
                      pagination=pagination,
                      row_key="fileName")
+    table.add_slot("top", """
+         <q-select
+          v-model="visibleColumns"
+          outlined
+          dense
+          options-dense
+          :display-value="$q.lang.table.columns"
+          emit-value
+          map-options
+          :options="pic"
+          option-value="name"
+          options-cover
+          style="min-width: 150px"
+        />
+    """)
     table.on("request", on_file_page_change)
 
 
@@ -57,8 +74,18 @@ async def file_page_index():
     with page_template.frame("潘多拉"):
         with ui.row():
             ui.button("扫描文件", on_click=clean_and_start_scan)
-            ui.button("计算md5")
-            ui.button("物体检测")
+            ui.button("计算md5", on_click=cal_md5)
+            ui.button("物体检测", on_click=object_detect)
+
+
+async def cal_md5():
+    await file_md5_api.run_md5_cal()
+    ui.notify("开始计算md5")
+
+
+async def object_detect():
+    await pic_operate_api.run_face_detect_all()
+    ui.notify("开始物体检测")
 
 
 async def clean_and_start_scan():

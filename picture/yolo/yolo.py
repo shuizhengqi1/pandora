@@ -46,7 +46,13 @@ def detect(file_path, tmp_save_path):
         print(f"当前模型不存在，加载模型数据")
         model = YOLO(os.path.join(yolo_path, yolo_file_name))
     # 读取图片
-    img = Image.open(file_path)
+    try:
+        img = Image.open(file_path)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+    except Exception as e:
+        print(f"当前图片:{file_path}处理失败", e)
+        return
     # 图片预处理
     # 物体检测
     results = model.predict(source=np.array(img), conf=0.5)

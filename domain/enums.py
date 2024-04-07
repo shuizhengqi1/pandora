@@ -22,7 +22,14 @@ class MediaTypeEnum(Enum):
     DOCUMENT = "document"
 
 
-class PicHandleStatus(Enum):
+class PicFaceDetectStatus(Enum):
+    INIT = 0
+    DONE = 1
+    WAIT_CON = 2
+    ERROR = 3
+
+
+class PicObjectDetectStatus(Enum):
     INIT = 0
     DONE = 1
     WAIT_CON = 2

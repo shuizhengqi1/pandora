@@ -51,4 +51,4 @@ def update_face_info(face_info: FaceInfo):
         update_data = session.get(FaceInfo, face_info.id)
         if face_info.face_feature:
             update_data.face_feature = face_info.face_feature
-        update_data.status = face_info.status
+        update_data.face_detect_status = face_info.status
