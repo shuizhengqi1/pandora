@@ -46,7 +46,7 @@ def filter_need_handle(file_path, file_name):
 
 # 具体处理文件的代码
 def handle_file(file_path):
-    # print("开始处理文件：" + file_path)
+    print("开始处理文件：" + file_path)
     file_info_stat = os.stat(file_path)
     file_name = os.path.basename(file_path)
     file_suffix = os.path.splitext(file_name)[1]

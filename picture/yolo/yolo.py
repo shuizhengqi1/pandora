@@ -32,8 +32,7 @@ def check_and_download_model():
             with open(os.path.join(yolo_path, yolo_file_name), 'wb') as file:
                 file.write(response.content)
         else:
-            nn
-        print(f"从 {download_url} 下载文件失败，状态码：{response.status_code}")
+            print(f"从 {download_url} 下载文件失败，状态码：{response.status_code}")
 
 
 # yolo中的result是个多维数组，shape的数据是[物体数量,6]或者[物体数量,7]。boxes本身是个对象，由多个数组组成的。
