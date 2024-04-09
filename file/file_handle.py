@@ -82,6 +82,7 @@ def scan_directory(directory):
     # 初始化队列
     for dir_path in progress_info['to_scan_dirs']:
         scan_queue.put(dir_path)
+    print(f"初始化任务")
     scan_queue.put(directory)
 
     while not scan_queue.empty():
@@ -94,6 +95,7 @@ def scan_directory(directory):
         if skip_dir(current_dir):
             continue
         try:
+            print(f"开始获取文件夹数量")
             with os.scandir(current_dir) as scan_it:
                 for entry in scan_it:
                     print(f"开始扫描")
