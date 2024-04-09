@@ -2,6 +2,7 @@ from nicegui import APIRouter, ui, events
 from web.frontend import page_template
 from web.api.file import file_view_api, file_api, file_scan_api, file_md5_api
 from web.api.pic import pic_operate_api
+from tool import global_count
 
 router = APIRouter()
 
@@ -71,10 +72,16 @@ async def on_file_page_change(request):
 
 @router.page("/", title="文件列表")
 async def file_page_index():
-    with page_template.frame("潘多拉"):
+    with (page_template.frame("潘多拉")):
         with ui.row():
-            ui.button("扫描文件", on_click=clean_and_start_scan)
-            ui.button("计算md5", on_click=cal_md5)
+            ui.button("扫描文件", on_click=clean_and_start_scan).bind_enabled_from(not global_count.scan_flag)
+            ui.button("停止扫描", on_click=clean_and_start_scan
+                      ).bind_visibility_from(
+                global_count.scan_flag).bind_enabled_from(global_count.scan_flag)
+            ui.button("计算md5", on_click=cal_md5).bind_enabled_from(global_count.md5_flag)
+            ui.button("停止计算md5", on_click=global_count.stop_file_md5()).bind_enabled_from(
+                not global_count.md5_flag).bind_visibility_from(
+                not global_count.md5_flag)
             ui.button("物体检测", on_click=object_detect)
 
 

@@ -12,9 +12,6 @@ download_url = "https://iotxing-1253163150.cos.ap-shanghai.myqcloud.com/yolov8x.
 yolo_path = None
 yolo_file_name = "yolov8x.pt"
 
-model = None
-
-
 def check_and_download_model():
     global yolo_path
     model_path_json = json.loads(base_config_db.get_config(base_config_db.ConfigKeyEnum.MODEL_PATH.value))
@@ -35,15 +32,15 @@ def check_and_download_model():
             print(f"从 {download_url} 下载文件失败，状态码：{response.status_code}")
 
 
+check_and_download_model()
+model = YOLO(os.path.join(yolo_path, yolo_file_name))
+
+
 # yolo中的result是个多维数组，shape的数据是[物体数量,6]或者[物体数量,7]。boxes本身是个对象，由多个数组组成的。
 # 通过shape可以获取到数量的信息，通过cls可以获取到名称的信息，但是这里cls里面是个数组，需要用下标去取。conf这些也是一样的。
 # 各个数组里面都存储的信息，需要用下标去
 
 def detect(file_path, tmp_save_path):
-    global model
-    if not model:
-        print(f"当前模型不存在，加载模型数据")
-        model = YOLO(os.path.join(yolo_path, yolo_file_name))
     # 读取图片
     try:
         img = Image.open(file_path)
@@ -82,6 +79,3 @@ def detect(file_path, tmp_save_path):
                 object_crop_path=crop_save_path
             ))
     return object_result_list
-
-
-check_and_download_model()

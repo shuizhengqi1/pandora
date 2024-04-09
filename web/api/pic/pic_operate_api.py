@@ -16,5 +16,5 @@ async def run_face_detect(file_id: int):
 
 @app.get("/detect")
 async def run_face_detect_all():
-    object_detect.start_detect_all()
+    await object_detect.start_detect_all()
     return "物体检测开始"
