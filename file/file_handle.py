@@ -93,6 +93,7 @@ def scan_directory(directory):
         _scanCurrentDir = current_dir
         _scanDirCount += 1
         if skip_dir(current_dir):
+            print(f"跳过文件夹")
             continue
         try:
             print(f"开始获取文件夹数量")
