@@ -35,9 +35,8 @@ def print_progress():
 # 是否隐藏的文件夹
 @log_tool.log_process("扫描是否跳过目录")
 def skip_dir(directory):
-    config_str=base_config_db.get_config("skip_dir_name")
     skip_dir_name_list = json.loads(base_config_db.get_config("skip_dir_name"))
-    return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
+    return '.' in os.path.basename(directory) or '@' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 
 # 是否需要处理文件
@@ -101,7 +100,6 @@ def scan_directory(directory):
             print(f"开始获取文件夹数量")
             with os.scandir(current_dir) as scan_it:
                 for entry in scan_it:
-                    print(f"开始扫描")
                     if entry.is_symlink() or not os.access(entry.path, os.R_OK):
                         continue
                     if entry.is_file() and filter_need_handle(entry.path, entry.name):
