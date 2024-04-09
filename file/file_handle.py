@@ -8,7 +8,7 @@ import time
 from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db, FileInfo
 import datetime
 from data import process_data
-from tool import executor_tool
+from tool import executor_tool,log_tool
 
 _scanFlag = True
 _scanStartTime = 0
@@ -33,6 +33,7 @@ def print_progress():
 
 
 # 是否隐藏的文件夹
+@log_tool.log_process("扫描是否跳过目录")
 def skip_dir(directory):
     skip_dir_name_list = json.loads(base_config_db.get_config("skip_dir_name"))
     return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
