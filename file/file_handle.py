@@ -86,8 +86,6 @@ def scan_directory(directory):
 
     while not scan_queue.empty():
         current_dir = scan_queue.get()
-        # if current_dir in progress_info['scanned_dirs']:
-        #     continue
         print(f"当前目录是:{current_dir}")
         global _scanDirCount
         global _scanCurrentDir
@@ -96,17 +94,19 @@ def scan_directory(directory):
         if skip_dir(current_dir):
             continue
         try:
-            for entry in os.scandir(current_dir):
-                if entry.is_symlink() or not os.access(entry.path, os.R_OK):
-                    continue
-                if entry.is_file() and filter_need_handle(entry.path, entry.name):
-                    sys.stdout.flush()
-                    handle_file(entry.path)
-                    progress_info['file_count'] += 1
-                elif entry.is_dir():
-                    scan_queue.put(entry.path)
-                    progress_info['scanned_dirs'].append(entry.path)
-                    process_data.save_process(scan_queue)
+            with os.scandir(current_dir) as scan_it:
+                for entry in scan_it:
+                    print(f"开始扫描")
+                    if entry.is_symlink() or not os.access(entry.path, os.R_OK):
+                        continue
+                    if entry.is_file() and filter_need_handle(entry.path, entry.name):
+                        sys.stdout.flush()
+                        handle_file(entry.path)
+                        progress_info['file_count'] += 1
+                    elif entry.is_dir():
+                        scan_queue.put(entry.path)
+                        progress_info['scanned_dirs'].append(entry.path)
+                        process_data.save_process(scan_queue)
         except OSError as e:
             print(f"Error scanning directory: {e}", e)
             import traceback
