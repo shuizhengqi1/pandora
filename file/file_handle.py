@@ -36,9 +36,7 @@ def print_progress():
 @log_tool.log_process("扫描是否跳过目录")
 def skip_dir(directory):
     config_str=base_config_db.get_config("skip_dir_name")
-    print(f"配置文件是:{config_str}")
     skip_dir_name_list = json.loads(base_config_db.get_config("skip_dir_name"))
-    print(f"读取跳过的配置")
     return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 
@@ -145,7 +143,7 @@ def get_file_list():
     global _scanStartTime
     _scanStartTime = time.time()
     # 加载进度
-    # executor_tool.file_pool.submit(print_progress)
+    executor_tool.file_pool.submit(print_progress)
     executor_tool.file_pool.submit(scan_directory, origin_path)
     executor_tool.file_pool.join()
 
