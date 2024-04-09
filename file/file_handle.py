@@ -84,7 +84,7 @@ def scan_directory(directory):
         scan_queue.put(dir_path)
     print(f"初始化任务")
     scan_queue.put(directory)
-
+    print(f"初始化队列完成")
     while not scan_queue.empty():
         current_dir = scan_queue.get()
         print(f"当前目录是:{current_dir}")
@@ -140,7 +140,7 @@ def get_file_list():
     global _scanStartTime
     _scanStartTime = time.time()
     # 加载进度
-    executor_tool.file_pool.submit(print_progress)
+    # executor_tool.file_pool.submit(print_progress)
     executor_tool.file_pool.submit(scan_directory, origin_path)
     executor_tool.file_pool.join()
 
