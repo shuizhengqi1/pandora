@@ -44,12 +44,21 @@ async def config_table() -> None:
                 "width: 300px")
 
         with ui.row():
-            ui.label("模型地址").style(
+            ui.label("yolo模型保存地址").style(
                 "width: 200px;display: flex;align-items: center;vertical-align: middle")
             ui.input(value=config_map[ConfigKeyEnum.MODEL_PATH.value]).bind_value_to(config_map,
                                                                                      ConfigKeyEnum.MODEL_PATH.value,
                                                                                      lambda value: value).style(
                 "width: 300px")
+        with ui.row():
+            if ConfigKeyEnum.YOLO_DOWNLOAD_PATH.value in config_map:
+                ui.label("yolo模型下载地址").style(
+                    "width: 200px;display: flex;align-items: center;vertical-align: middle")
+                ui.input(value=config_map[ConfigKeyEnum.YOLO_DOWNLOAD_PATH.value]).bind_value_to(config_map,
+                                                                                                 ConfigKeyEnum.YOLO_DOWNLOAD_PATH.value,
+                                                                                                 lambda
+                                                                                                     value: value).style(
+                    "width: 300px")
 
 
 @router.page("/", title="配置读取")

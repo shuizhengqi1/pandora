@@ -8,6 +8,7 @@ class ConfigKeyEnum(Enum):
     SKIP_DIR_NAME = "skip_dir_name"
     PIC_TMP_PATH = "pic_tmp_path"
     MODEL_PATH = "model_path"
+    YOLO_DOWNLOAD_PATH = "yolo_download_path"
 
 
 class FaceReconStatus(Enum):

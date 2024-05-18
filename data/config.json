@@ -6,6 +6,7 @@
   "model_path": {
     "yolo": "tmp/model/yolo"
   },
+  "yolo_download_path": " ",
   "skip_dir_name": [
     "node_modules",
     "jdk",

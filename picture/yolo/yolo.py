@@ -4,13 +4,12 @@ import numpy as np
 import requests
 from ultralytics import YOLO
 from PIL import Image
-from domain import base_config_db
 from domain.object_detect_db import ObjectDetect
-
-download_url = "https://iotxing-1253163150.cos.ap-shanghai.myqcloud.com/yolov8x.pt"
+from domain import base_config_db
 
 yolo_path = None
 yolo_file_name = "yolov8x.pt"
+
 
 def check_and_download_model():
     global yolo_path
@@ -19,10 +18,15 @@ def check_and_download_model():
         yolo_path = model_path_json['yolo']
     if not yolo_path:
         raise ValueError("yolo model地址不存在")
+
     if not os.path.exists(os.path.join(yolo_path, yolo_file_name)):
         print(f"当前yolo模型不存在，准备下载 存储地址:{yolo_path}")
         if not os.path.exists(yolo_path):
             os.makedirs(yolo_path)
+        download_url = base_config_db.get_config(base_config_db.ConfigKeyEnum.YOLO_DOWNLOAD_PATH.value)
+        if not download_url:
+            print(f"未设置yolo下载地址，从官网进行下载")
+            return
         response = requests.get(download_url)
         if response.status_code == 200:
             print(f"开始下载 存储地址:{yolo_path}")
