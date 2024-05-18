@@ -8,7 +8,7 @@ import time
 from domain import file_info_db, pic_info_db, video_info_db, base_config_db, media_type_db, FileInfo
 import datetime
 from data import process_data
-from tool import executor_tool
+from tool import executor_tool,log_tool
 
 _scanFlag = True
 _scanStartTime = 0
@@ -33,9 +33,10 @@ def print_progress():
 
 
 # 是否隐藏的文件夹
+@log_tool.log_process("扫描是否跳过目录")
 def skip_dir(directory):
     skip_dir_name_list = json.loads(base_config_db.get_config("skip_dir_name"))
-    return '.' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
+    return '.' in os.path.basename(directory) or '@' in os.path.basename(directory) or os.path.basename(directory) in skip_dir_name_list
 
 
 # 是否需要处理文件
@@ -46,7 +47,7 @@ def filter_need_handle(file_path, file_name):
 
 # 具体处理文件的代码
 def handle_file(file_path):
-    # print("开始处理文件：" + file_path)
+    print("开始处理文件：" + file_path)
     file_info_stat = os.stat(file_path)
     file_name = os.path.basename(file_path)
     file_suffix = os.path.splitext(file_name)[1]
@@ -82,31 +83,33 @@ def scan_directory(directory):
     # 初始化队列
     for dir_path in progress_info['to_scan_dirs']:
         scan_queue.put(dir_path)
+    print(f"初始化任务")
     scan_queue.put(directory)
-
+    print(f"初始化队列完成")
     while not scan_queue.empty():
         current_dir = scan_queue.get()
-        # if current_dir in progress_info['scanned_dirs']:
-        #     continue
         print(f"当前目录是:{current_dir}")
         global _scanDirCount
         global _scanCurrentDir
         _scanCurrentDir = current_dir
         _scanDirCount += 1
         if skip_dir(current_dir):
+            print(f"跳过文件夹")
             continue
         try:
-            for entry in os.scandir(current_dir):
-                if entry.is_symlink() or not os.access(entry.path, os.R_OK):
-                    continue
-                if entry.is_file() and filter_need_handle(entry.path, entry.name):
-                    sys.stdout.flush()
-                    handle_file(entry.path)
-                    progress_info['file_count'] += 1
-                elif entry.is_dir():
-                    scan_queue.put(entry.path)
-                    progress_info['scanned_dirs'].append(entry.path)
-                    process_data.save_process(scan_queue)
+            print(f"开始获取文件夹数量")
+            with os.scandir(current_dir) as scan_it:
+                for entry in scan_it:
+                    if entry.is_symlink() or not os.access(entry.path, os.R_OK):
+                        continue
+                    if entry.is_file() and filter_need_handle(entry.path, entry.name):
+                        sys.stdout.flush()
+                        handle_file(entry.path)
+                        progress_info['file_count'] += 1
+                    elif entry.is_dir():
+                        scan_queue.put(entry.path)
+                        progress_info['scanned_dirs'].append(entry.path)
+                        process_data.save_process(scan_queue)
         except OSError as e:
             print(f"Error scanning directory: {e}", e)
             import traceback

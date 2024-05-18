@@ -1,10 +1,8 @@
 from db.db_base import Base, Column, INTEGER, String, LargeBinary, SMALLINT, BLOB, get_session
-from enum import Enum
 from data import config
+from domain.enums import MediaTypeEnum
 
 table_name = "media_type"
-
-media_type_list = ["video", "pic", "document"]
 
 
 class MediaType(Base):
@@ -47,11 +45,11 @@ def init_local_suffix_map():
 
 def check_and_init():
     with get_session(True) as session:
-        for media_type in media_type_list:
-            query = session.query(MediaType).filter(MediaType.media_type == media_type).all()
-            if not query and config.config_json["type_map"][media_type]:
-                for item in config.config_json["type_map"][media_type]:
-                    session.add(MediaType(media_type=media_type, media_suffix=item))
+        for media_type in MediaTypeEnum:
+            query = session.query(MediaType).filter(MediaType.media_type == media_type.value).all()
+            if not query and config.config_json["type_map"][media_type.value]:
+                for item in config.config_json["type_map"][media_type.value]:
+                    session.add(MediaType(media_type=media_type.value, media_suffix=item))
 
 
 suffix_type_map = init_local_suffix_map()

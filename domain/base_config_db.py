@@ -2,10 +2,9 @@ from db.db_base import Base, Column, INTEGER, String, LargeBinary, SMALLINT, BLO
 from enum import Enum
 from data import config
 import json
+from domain.enums import ConfigKeyEnum
 
 table_name = "base_config"
-
-config_key_list = ["start_dir", "scan_interval", "scan_process_path", "skip_dir_name","pic_tmp_path"]
 
 
 class BaseConfig(Base):
@@ -55,6 +54,6 @@ def get_config(config_key):
 
 
 def init():
-    for key in config_key_list:
-        check_config_and_init(key)
+    for key in ConfigKeyEnum:
+        check_config_and_init(key.value)
     print("配置文件加载完毕")

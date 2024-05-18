@@ -5,19 +5,26 @@ import sys
 import time
 from tqdm import tqdm
 from domain import file_info_db
+from tool import global_count
 
 
 def cal_all_md5():
+    global_count.start_file_md5()
     sys.stdout.write("\033[F\033[K")
     sys.stdout.write("\033[F\033[K")
     sys.stdout.write("\033[F\033[K")
     total_count = file_info_db.query_need_cal_md5_count()
+    global_count.change_file_md5_count(total_count)
     print(f"总数是{total_count}")
     with tqdm(total=total_count,
               bar_format="处理百分比：{percentage:3.0f}%|{bar}|已处理{n_fmt}/总数{total_fmt}",
               smoothing=0) as total_bar:
         flag = True
         while flag:
+            if not global_count.md5_flag:
+                print(f"停止计算md5")
+                flag = False
+                return
             rowList = file_info_db.query_unprocessed_file_list()
             if not rowList:
                 flag = False
@@ -28,12 +35,14 @@ def cal_all_md5():
                     sys.stdout.write("\033[F\033[K")
                     total_bar.write(f"当前处理:{file_path}")
                     calculate_md5(file_id, file_path)
+                    global_count.add_file_md5_finished_count()
                     total_bar.update(1)
                     sys.stdout.write("\033[F\033[K")
                     sys.stdout.flush()
                 except Exception as e:
                     print(f"文件扫描异常: {e}")
                     continue
+    global_count.finish_file_md5()
 
 
 def get_count_info():
@@ -43,13 +52,16 @@ def get_count_info():
 
 
 def calculate_md5(file_id, file_path):
+    if not global_count.md5_flag:
+        print(f"停止计算md5")
+        return
     start_time = time.time()
     hash_md5 = hashlib.md5()
-    file_size = round(os.stat(file_path).st_size/(1024 * 1024), 1)
+    file_size = round(os.stat(file_path).st_size / (1024 * 1024), 1)
     with open(file_path, "rb") as f, tqdm(total=file_size,
                                           bar_format="文件读取进度：{percentage:3.0f}%|{bar}|已处理{n_fmt}mb/总数{total_fmt}mb",
                                           smoothing=0) as file_bar:
-        batch_size = 10*1024*1024
+        batch_size = 10 * 1024 * 1024
         for chunk in iter(lambda: f.read(batch_size), b""):
             hash_md5.update(chunk)
             file_bar.update(5)

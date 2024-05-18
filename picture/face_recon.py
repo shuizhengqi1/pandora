@@ -3,11 +3,11 @@ from tqdm import tqdm
 from picture.pytorch_module.face_detect import Pytorch
 import multiprocessing
 import concurrent.futures
+from tool.executor_tool import detect_pool
 
 num_cores = multiprocessing.cpu_count()
 
 platform = Pytorch()
-detect_executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_cores - 1)
 
 
 def start_recon():
@@ -26,7 +26,7 @@ def start_recon():
             if face_info_list:
 
                 for face_info in face_info_list:
-                    future_list.append(detect_executor.submit(face_recon, face_info))
+                    future_list.append(detect_pool.submit(face_recon, face_info))
         for future in concurrent.futures.as_completed(future_list):
             future.result()
             total_bar.update(1)

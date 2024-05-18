@@ -21,9 +21,15 @@ def delete_by_file(file_id: int):
         session.query(ObjectDetect).filter(ObjectDetect.file_id == file_id).all().delete()
 
 
+def delete_all():
+    with get_session(True) as session:
+        session.query(ObjectDetect).delete()
+        print(f"清理所有数据")
+
+
 def add_object_detect(object_detect: ObjectDetect):
     object_detect.id = None
-    with get_session() as session:
+    with get_session(True) as session:
         session.add(object_detect)
         session.flush()
         return object_detect.id

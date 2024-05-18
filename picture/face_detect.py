@@ -6,14 +6,12 @@ from file import file_md5
 import concurrent.futures
 import multiprocessing
 from picture.pytorch_module.face_detect import Pytorch
-
-# from picture.keras_module.face_detect import Keras
+from tool.executor_tool import detect_pool
 
 save_path = 'face_icon'
 num_cores = multiprocessing.cpu_count()
 
 # 检测用的线程池
-detect_executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_cores - 1)
 
 
 def choose_framework(code):
@@ -31,7 +29,7 @@ def process_all_pic():
     # face_info_db.delete_all()
     total_count = pic_info_db.get_pic_total_count()
     print(f"当前图片总数为{total_count}")
-    unprocessed_count = pic_info_db.get_pic_need_detect_count()
+    unprocessed_count = pic_info_db.get_pic_need_face_detect_count()
     print(f"当前待检测图片总数为{unprocessed_count}")
     if os.path.exists(save_path):
         print(f"当前目录:{save_path}已存在，执行删除")
@@ -44,10 +42,10 @@ def process_all_pic():
               smoothing=0) as total_bar:
         future_list = []
         for i in range(total_page):
-            pic_list = pic_info_db.get_to_process_pic_list(page_size, i)
+            pic_list = pic_info_db.get_to_process_face_detect_list(page_size, i)
             if pic_list:
                 for pic_info_domain, file_info_domain in pic_list:
-                    future_list.append(detect_executor.submit(handle_file, pic_info_domain, file_info_domain))
+                    future_list.append(detect_pool.submit(handle_file, pic_info_domain, file_info_domain))
         for future in concurrent.futures.as_completed(future_list):
             future.result()
             total_bar.update(1)
@@ -78,13 +76,13 @@ def detect_face_and_save(pic_info_domain: pic_info_db.PicInfo, file_info_domain:
             # 检测到人脸数据
             pic_info_domain.face_count = len(face_list)
             pic_info_domain.face_icon_path = os.path.abspath(face_base_path)
-            pic_info_domain.status = pic_info_db.PicHandleStatus.WAIT_CON.value
+            pic_info_domain.face_detect_status = pic_info_db.PicObjectDetectStatus.WAIT_CON.value
             add_face_info(pic_info_domain.id, face_list)
         else:
-            pic_info_domain.status = pic_info_db.PicHandleStatus.DONE.value
+            pic_info_domain.face_detect_status = pic_info_db.PicObjectDetectStatus.DONE.value
     except Exception as e:
         print(f"图片{file_info_domain.file_path}检测失败，异常原因:{e}")
-        pic_info_domain.status = pic_info_db.PicHandleStatus.ERROR.value
+        pic_info_domain.face_detect_status = pic_info_db.PicObjectDetectStatus.ERROR.value
     pic_info_db.update_face_detect_result(pic_info_domain)
 
 
@@ -97,13 +95,3 @@ def add_face_info(pic_id, face_list):
         ))
 
 
-def check1_embedding(face1, face2):
-    # face1_embedding = resnet(mtcnn(face1).unsqueeze(0))
-    # face2_embedding = resnet(mtcnn(face2).unsqueeze(0))
-    distance = (face1 - face2).norm().item()
-    # 设定阈值并判断是否为同一个人
-    threshold = 1  # 阈值可以根据实际情况调整
-    if distance < threshold:
-        print("face1和face2是同一个人")
-    else:
-        print("face1和face2不是同一个人")

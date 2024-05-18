@@ -1,13 +1,8 @@
 from db.db_base import Base, Column, INTEGER, String, LargeBinary, SMALLINT, BLOB, get_session
 from enum import Enum
+from domain.enums import FaceReconStatus
 
 table_name = "face_info"
-
-
-class FaceReconStatus(Enum):
-    INIT = 0
-    SUCCESS = 1
-    FAIL = 2
 
 
 class FaceInfo(Base):
@@ -56,4 +51,4 @@ def update_face_info(face_info: FaceInfo):
         update_data = session.get(FaceInfo, face_info.id)
         if face_info.face_feature:
             update_data.face_feature = face_info.face_feature
-        update_data.status = face_info.status
+        update_data.face_detect_status = face_info.status
